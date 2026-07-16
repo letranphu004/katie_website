@@ -1,0 +1,2 @@
+- [Single-page rebuild context](project_single_page_rebuild.md) — KatieWeb collapsed 5 pages into index.html on 2026-07-16, plan at plans/260716-1030-single-page-catalog/
+- [docs/README.md lags behind restructures](feedback_docs_readme_lag.md) — always check it even when not in the plan's file list

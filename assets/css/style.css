@@ -1,0 +1,648 @@
+/* ==========================================================================
+   Tiệm Tí Bé — Design Tokens & Custom Styles
+   Bootstrap utilities handle layout/spacing/grid; this file covers what
+   Bootstrap can't: palette, editorial-minimalist chrome, animations.
+   Style reference: CHUU (en.chuu.co.kr) — neutral black/white/ivory UI,
+   zero-radius grid, no shadows/blur; color comes from product photography,
+   not from page chrome.
+   ========================================================================== */
+
+:root {
+  --color-bg: #FFFFFF;
+  --color-surface-muted: #F6F3F0;
+  --color-white: #FFFFFF;
+  --color-ink: #171412;
+  --color-ink-soft: #6B6660;
+  --color-accent: #8F4A5D;         /* text-safe accent (4.5:1+ on white) — price, links, active state */
+  --color-accent-bright: #B4677A;  /* decorative-only accent — borders, swatch rings, non-text fills */
+  --color-border: #E4E0DA;
+  --color-border-strong: #171412;
+
+  --radius: 0px;
+  --radius-sm: 2px;
+  --radius-pill: 999px; /* reserved for circular elements only (avatars, swatches, icon rings) */
+
+  --font-heading: "Be Vietnam Pro", sans-serif;
+  --font-body: "Be Vietnam Pro", sans-serif;
+
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-ink);
+  background-color: var(--color-bg);
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, .font-heading {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+}
+
+.text-gold { color: var(--color-accent) !important; }
+.bg-blush { background-color: var(--color-bg) !important; }
+.bg-pink-soft { background-color: var(--color-surface-muted) !important; }
+.border-gold { border-color: var(--color-border-strong) !important; }
+
+.section-padding {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+}
+@media (max-width: 767.98px) {
+  .section-padding { padding-top: 3rem; padding-bottom: 3rem; }
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Surfaces (flat — replaces glassmorphism)
+   ========================================================================== */
+
+.glass-card {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.navbar-glass {
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid var(--color-border);
+  transition: box-shadow var(--transition-base), padding var(--transition-base), border-color var(--transition-base);
+}
+
+.navbar-glass .nav-link {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-ink);
+}
+.navbar-glass .nav-link.active,
+.navbar-glass .nav-link:hover,
+.navbar-glass .nav-link:focus-visible {
+  color: var(--color-accent);
+}
+
+.navbar-glass.is-scrolled {
+  border-bottom-color: var(--color-border-strong);
+  padding-top: 0.35rem;
+  padding-bottom: 0.35rem;
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+
+.btn-boutique {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-radius: var(--radius);
+  padding: 0.85rem 2rem;
+  background-color: var(--color-ink);
+  color: var(--color-white);
+  border: 1.5px solid var(--color-ink);
+  transition: background-color var(--transition-base), color var(--transition-base), border-color var(--transition-base);
+}
+.btn-boutique:hover,
+.btn-boutique:focus-visible {
+  background-color: var(--color-white);
+  color: var(--color-ink);
+  border-color: var(--color-ink);
+}
+
+.btn-boutique-outline {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-radius: var(--radius);
+  padding: 0.8rem 1.9rem;
+  background-color: transparent;
+  color: var(--color-ink);
+  border: 1.5px solid var(--color-ink);
+  transition: background-color var(--transition-base), color var(--transition-base);
+}
+.btn-boutique-outline:hover,
+.btn-boutique-outline:focus-visible {
+  background-color: var(--color-ink);
+  color: var(--color-white);
+}
+
+/* ==========================================================================
+   Hover Lift (cards, gallery items) — image-zoom only, no shadow/translate
+   ========================================================================== */
+
+.hover-lift {
+  transition: border-color var(--transition-base);
+}
+.hover-lift:hover,
+.hover-lift:focus-within {
+  border-color: var(--color-border-strong);
+}
+
+/* ==========================================================================
+   Hero
+   ========================================================================== */
+
+.hero {
+  position: relative;
+  min-height: 92vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background: var(--color-surface-muted);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-title {
+  font-size: clamp(2.2rem, 5vw, 3.75rem);
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  overflow-wrap: break-word;
+}
+
+.hero-subtitle {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  color: var(--color-ink-soft);
+}
+
+/* ==========================================================================
+   Why Choose Us
+   ========================================================================== */
+
+.feature-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  color: var(--color-ink);
+  margin-inline: auto;
+}
+
+/* ==========================================================================
+   Product Cards
+   ========================================================================== */
+
+.product-card {
+  background: var(--color-white);
+  border-radius: var(--radius);
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.product-group + .product-group {
+  margin-top: 1rem;
+  padding-top: 3.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.product-group__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.product-group__index {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-ink);
+}
+
+.product-card__media {
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--color-surface-muted);
+}
+
+.product-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-base);
+}
+
+.product-card:hover .product-card__media img,
+.product-card:focus-within .product-card__media img {
+  transform: scale(1.04);
+}
+
+.product-card__body {
+  padding: 0.85rem 0.05rem 0.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.product-card__material {
+  font-size: 0.66rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-ink-soft);
+}
+
+.product-card__name {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--color-ink);
+}
+
+.product-card__price {
+  font-weight: 600;
+  color: var(--color-ink);
+  font-size: 0.9rem;
+  letter-spacing: 0.01em;
+}
+
+.color-swatch {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid var(--color-white);
+  box-shadow: 0 0 0 1px var(--color-border-strong);
+  cursor: pointer;
+  padding: 0;
+}
+.color-swatch.is-selected {
+  box-shadow: 0 0 0 2px var(--color-accent);
+}
+
+/* ==========================================================================
+   Timeline (How It Works)
+   ========================================================================== */
+
+.timeline {
+  position: relative;
+}
+.timeline-step {
+  position: relative;
+  text-align: center;
+  padding: 1.75rem 1.25rem;
+}
+.timeline-step__num {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-ink);
+  color: var(--color-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  margin: 0 auto 1rem;
+  background: var(--color-white);
+}
+.timeline-connector {
+  display: none;
+}
+@media (min-width: 992px) {
+  .timeline-connector {
+    display: block;
+    position: absolute;
+    top: 22px;
+    left: 55%;
+    width: 100%;
+    border-top: 1px dashed var(--color-border-strong);
+    z-index: 0;
+  }
+  .timeline-step:last-child .timeline-connector { display: none; }
+}
+
+/* ==========================================================================
+   Testimonials
+   ========================================================================== */
+
+.testimonial-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid var(--color-ink);
+}
+
+/* ==========================================================================
+   Gallery (Grid)
+   ========================================================================== */
+
+.gallery-masonry {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+@media (min-width: 576px) { .gallery-masonry { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 992px) { .gallery-masonry { grid-template-columns: repeat(3, 1fr); } }
+
+.gallery-item {
+  display: block;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius);
+  overflow: hidden;
+  position: relative;
+}
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--transition-base);
+}
+.gallery-item:hover img,
+.gallery-item:focus-visible img {
+  transform: scale(1.04);
+}
+
+/* ==========================================================================
+   FAQ Accordion
+   ========================================================================== */
+
+.accordion-boutique .accordion-item {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm) !important;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+.accordion-boutique .accordion-button {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  background: var(--color-white);
+  color: var(--color-ink);
+}
+.accordion-boutique .accordion-button:not(.collapsed) {
+  background: var(--color-surface-muted);
+  color: var(--color-ink);
+  box-shadow: none;
+}
+
+/* ==========================================================================
+   Product Detail Modal
+   ========================================================================== */
+
+#productModal .modal-content {
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  box-shadow: none;
+}
+#productModal .modal-header {
+  border-bottom: 1px solid var(--color-border);
+}
+#productModal .modal-title {
+  font-family: var(--font-heading);
+}
+
+#productModalCarouselInner .carousel-item img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+
+#productModalCarousel .carousel-control-prev,
+#productModalCarousel .carousel-control-next {
+  width: 44px;
+  height: 44px;
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+  background: var(--color-ink);
+  opacity: 0.85;
+}
+#productModalCarousel .carousel-control-prev { left: 0.75rem; }
+#productModalCarousel .carousel-control-next { right: 0.75rem; }
+#productModalCarousel .carousel-control-prev-icon,
+#productModalCarousel .carousel-control-next-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+/* ==========================================================================
+   Order Page — Form & Live Preview
+   ========================================================================== */
+
+.order-form .form-control,
+.order-form .form-select {
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  padding: 0.7rem 1rem;
+}
+.order-form .form-control:focus,
+.order-form .form-select:focus {
+  border-color: var(--color-ink);
+  box-shadow: 0 0 0 0.2rem rgba(23, 20, 18, 0.1);
+}
+.order-form label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.35rem;
+}
+
+.clip-preview {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  margin-inline: auto;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-white);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+}
+.clip-shape {
+  position: relative;
+  width: 70%;
+  padding: 1.75rem 1rem;
+  background: var(--color-surface-muted);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  border: 1px solid var(--color-border);
+}
+.clip-shape__line {
+  height: 1.5px;
+  background: var(--color-ink);
+  margin: 0.4rem auto;
+  width: 80%;
+}
+#previewText {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: var(--color-ink);
+  word-break: break-word;
+}
+
+.order-success {
+  display: none;
+}
+.order-success.is-visible {
+  display: block;
+}
+.order-success__icon {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-ink);
+  color: var(--color-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  margin: 0 auto 1.25rem;
+}
+
+/* ==========================================================================
+   Chrome: Scroll progress, back-to-top, floating order button
+   ========================================================================== */
+
+#scrollProgress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0%;
+  background: var(--color-ink);
+  z-index: 1100;
+}
+
+#backToTop {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 5.5rem;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--color-white);
+  color: var(--color-ink);
+  border: 1.5px solid var(--color-ink);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  transition: transform var(--transition-base), opacity var(--transition-base);
+}
+#backToTop.is-visible { display: flex; }
+#backToTop:hover { transform: translateY(-4px); }
+
+.quick-actions {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 1050;
+  max-width: calc(100vw - 2.5rem);
+  display: flex;
+  flex-wrap: wrap-reverse;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.quick-contact-btn {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--color-white);
+  color: var(--color-ink);
+  border: 1.5px solid var(--color-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  transition: transform var(--transition-base), background-color var(--transition-base), color var(--transition-base);
+}
+.quick-contact-btn:hover,
+.quick-contact-btn:focus-visible {
+  background: var(--color-ink);
+  color: var(--color-white);
+  transform: translateY(-4px);
+}
+.quick-contact-btn--zalo { color: #0068FF; border-color: #0068FF; }
+.quick-contact-btn--zalo:hover,
+.quick-contact-btn--zalo:focus-visible { background: #0068FF; color: var(--color-white); }
+
+#floatingOrderBtn {
+  border-radius: var(--radius);
+  padding: 0.85rem 1.4rem;
+  background: var(--color-ink);
+  color: var(--color-white);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  transition: transform var(--transition-base);
+}
+#floatingOrderBtn:hover {
+  transform: translateY(-4px);
+  color: var(--color-white);
+}
+
+/* ==========================================================================
+   Reduced Motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .hover-lift, .btn-boutique, .btn-boutique-outline, #backToTop, #floatingOrderBtn, .quick-contact-btn,
+  .product-card__media img, .gallery-item img {
+    transition: none !important;
+  }
+}
