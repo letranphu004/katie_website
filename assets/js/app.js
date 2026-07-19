@@ -121,14 +121,17 @@ function initProductGroups() {
 
   container.innerHTML = PRODUCT_GROUPS.map((group, groupIndex) => {
     const groupProducts = PRODUCTS.filter((p) => p.group === group.id);
-    const cards = groupProducts.map(renderProductCard).join("");
+    const cards = groupProducts.map((p, i) => renderProductCard(p, i, group.featured)).join("");
+    const badge = group.featured && group.badge
+      ? `<span class="product-group__badge">${escapeHtml(group.badge)}</span>`
+      : "";
     return `
-      <div class="product-group mb-5">
+      <div class="product-group mb-5${group.featured ? " product-group--featured" : ""}">
         <div class="product-group__header mb-4" data-aos="fade-up">
           <span class="product-group__index" aria-hidden="true">${String(groupIndex + 1).padStart(2, "0")}</span>
           <div>
             <p class="eyebrow mb-1">${escapeHtml(group.eyebrow)}</p>
-            <h3 class="h4 mb-0">${escapeHtml(group.label)}</h3>
+            <h3 class="h4 mb-0">${escapeHtml(group.label)}${badge}</h3>
           </div>
         </div>
         <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
@@ -138,14 +141,16 @@ function initProductGroups() {
   }).join("");
 }
 
-function renderProductCard(product, index) {
+function renderProductCard(product, index, isFeatured) {
   const name = escapeHtml(product.name);
   const material = escapeHtml(product.material);
+  const tag = isFeatured ? `<span class="product-card__tag">Best Seller</span>` : "";
   return `
     <div class="col">
-      <div class="product-card hover-lift" role="button" tabindex="0" data-product-id="${product.id}"
+      <div class="product-card hover-lift${isFeatured ? " product-card--featured" : ""}" role="button" tabindex="0" data-product-id="${product.id}"
         aria-label="Xem chi tiết ${name}" data-aos="fade-up" data-aos-delay="${(index % 3) * 80}">
         <div class="product-card__media">
+          ${tag}
           <img src="${product.image}" alt="${name}" loading="lazy">
         </div>
         <div class="product-card__body" style="align-items: center">
@@ -173,16 +178,18 @@ function initProductModal() {
   const carouselEl = document.getElementById("productModalCarousel");
   const carouselInner = document.getElementById("productModalCarouselInner");
   const swatchesEl = document.getElementById("productModalSwatches");
+  const colorLabel = document.getElementById("productModalColorLabel");
+  const colorNameEl = document.getElementById("productModalColorName");
   const orderBtn = document.getElementById("productModalOrderBtn");
   const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
 
   let currentProduct = null;
   let selectedColor = null;
+  let selectedParts = null;
   let orderInFlight = false;
 
   function openProduct(product) {
     currentProduct = product;
-    selectedColor = product.colors[0].name;
     const name = escapeHtml(product.name);
 
     modalTitle.textContent = product.name;
@@ -196,9 +203,30 @@ function initProductModal() {
       </div>`).join("");
     bootstrap.Carousel.getOrCreateInstance(carouselEl).to(0);
 
-    swatchesEl.innerHTML = product.colors.map((c, i) => `
-      <button type="button" class="color-swatch${i === 0 ? " is-selected" : ""}" style="background-color:${escapeHtml(c.hex)}"
-        data-color-name="${escapeHtml(c.name)}" aria-label="Chọn màu ${escapeHtml(c.name)}"></button>`).join("");
+    if (product.parts) {
+      selectedColor = null;
+      selectedParts = product.parts.map((part) => ({ label: part.label, colorName: part.colors[0].name }));
+      colorLabel.classList.add("d-none");
+      swatchesEl.innerHTML = product.parts.map((part, pi) => `
+        <div class="combo-part-swatches mb-3">
+          <p class="small fw-semibold mb-2">${escapeHtml(part.label)}${part.qty > 1 ? ` (x${part.qty})` : ""}:
+            <span class="fw-normal text-secondary" data-part-color-name="${pi}">${escapeHtml(part.colors[0].name)}</span></p>
+          <div class="d-flex gap-2 flex-wrap">
+            ${part.colors.map((c, ci) => `
+              <button type="button" class="color-swatch${ci === 0 ? " is-selected" : ""}" style="background-color:${escapeHtml(c.hex)}"
+                data-part-index="${pi}" data-color-name="${escapeHtml(c.name)}"
+                aria-label="Chọn màu ${escapeHtml(c.name)} cho ${escapeHtml(part.label)}"></button>`).join("")}
+          </div>
+        </div>`).join("");
+    } else {
+      selectedParts = null;
+      selectedColor = product.colors[0].name;
+      colorLabel.classList.remove("d-none");
+      if (colorNameEl) colorNameEl.textContent = product.colors[0].name;
+      swatchesEl.innerHTML = `<div class="d-flex gap-2 flex-wrap">${product.colors.map((c, i) => `
+        <button type="button" class="color-swatch${i === 0 ? " is-selected" : ""}" style="background-color:${escapeHtml(c.hex)}"
+          data-color-name="${escapeHtml(c.name)}" aria-label="Chọn màu ${escapeHtml(c.name)}"></button>`).join("")}</div>`;
+    }
 
     modal.show();
   }
@@ -222,19 +250,29 @@ function initProductModal() {
   swatchesEl.addEventListener("click", (e) => {
     const swatch = e.target.closest(".color-swatch");
     if (!swatch) return;
-    swatchesEl.querySelectorAll(".color-swatch").forEach((s) => s.classList.remove("is-selected"));
-    swatch.classList.add("is-selected");
-    selectedColor = swatch.dataset.colorName;
+    if (swatch.dataset.partIndex !== undefined) {
+      const partIndex = Number(swatch.dataset.partIndex);
+      swatchesEl.querySelectorAll(`.color-swatch[data-part-index="${partIndex}"]`).forEach((s) => s.classList.remove("is-selected"));
+      swatch.classList.add("is-selected");
+      if (selectedParts) selectedParts[partIndex].colorName = swatch.dataset.colorName;
+      const partNameEl = swatchesEl.querySelector(`[data-part-color-name="${partIndex}"]`);
+      if (partNameEl) partNameEl.textContent = swatch.dataset.colorName;
+    } else {
+      swatchesEl.querySelectorAll(".color-swatch").forEach((s) => s.classList.remove("is-selected"));
+      swatch.classList.add("is-selected");
+      selectedColor = swatch.dataset.colorName;
+      if (colorNameEl) colorNameEl.textContent = swatch.dataset.colorName;
+    }
   });
 
   orderBtn.addEventListener("click", () => {
     if (!currentProduct || orderInFlight) return;
     orderInFlight = true;
     const productId = currentProduct.id;
-    const colorName = selectedColor;
+    const colorSelection = selectedParts ? selectedParts.map(({ label, colorName }) => ({ label, colorName })) : selectedColor;
     modalEl.addEventListener("hidden.bs.modal", () => {
       orderInFlight = false;
-      prefillOrderForm(productId, colorName);
+      prefillOrderForm(productId, colorSelection);
       const orderSection = document.getElementById("order");
       if (!orderSection) return;
       const scrollToOrder = () => orderSection.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth" });
@@ -277,7 +315,7 @@ function initGallery() {
    Order — form, live preview, product/color cascade, submit
    ========================================================================== */
 
-function prefillOrderForm(productId, colorName) {
+function prefillOrderForm(productId, colorSelection) {
   const productSelect = document.getElementById("productSelect");
   const colorSelect = document.getElementById("colorSelect");
   if (!productSelect || !colorSelect || typeof PRODUCTS === "undefined") return;
@@ -286,8 +324,15 @@ function prefillOrderForm(productId, colorName) {
   productSelect.value = productId;
   productSelect.dispatchEvent(new Event("change"));
 
-  if (colorName && [...colorSelect.options].some((o) => o.value === colorName)) {
-    colorSelect.value = colorName;
+  if (Array.isArray(colorSelection)) {
+    colorSelection.forEach(({ label, colorName }) => {
+      const partSelect = document.querySelector(`.combo-color-select[data-part-label="${CSS.escape(label)}"]`);
+      if (partSelect && [...partSelect.options].some((o) => o.value === colorName)) {
+        partSelect.value = colorName;
+      }
+    });
+  } else if (colorSelection && [...colorSelect.options].some((o) => o.value === colorSelection)) {
+    colorSelect.value = colorSelection;
   }
 }
 
@@ -297,6 +342,8 @@ function initOrderPage() {
 
   const productSelect = document.getElementById("productSelect");
   const colorSelect = document.getElementById("colorSelect");
+  const colorFieldWrap = document.getElementById("colorFieldWrap");
+  const comboColorFields = document.getElementById("comboColorFields");
   const engravingInput = document.getElementById("engravingInput");
   const previewText = document.getElementById("previewText");
   const successPanel = document.getElementById("orderSuccess");
@@ -311,6 +358,23 @@ function initOrderPage() {
   function populateColors(productId) {
     const product = PRODUCTS.find((p) => p.id === productId);
     colorSelect.innerHTML = "";
+    comboColorFields.innerHTML = "";
+
+    if (product && product.parts) {
+      colorFieldWrap.classList.add("d-none");
+      comboColorFields.classList.remove("d-none");
+      comboColorFields.innerHTML = product.parts.map((part, i) => `
+        <div class="col-sm-6 mb-3">
+          <label for="comboColor-${i}">Màu ${escapeHtml(part.label)}</label>
+          <select class="form-select combo-color-select" id="comboColor-${i}" data-part-label="${escapeHtml(part.label)}">
+            ${part.colors.map((c) => `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`).join("")}
+          </select>
+        </div>`).join("");
+      return;
+    }
+
+    comboColorFields.classList.add("d-none");
+    colorFieldWrap.classList.remove("d-none");
     if (!product) return;
     product.colors.forEach((c) => {
       const opt = document.createElement("option");
@@ -335,6 +399,12 @@ function initOrderPage() {
       return;
     }
 
+    const selectedProduct = PRODUCTS.find((p) => p.id === productSelect.value);
+    const color = selectedProduct && selectedProduct.parts
+      ? [...comboColorFields.querySelectorAll(".combo-color-select")]
+          .map((s) => `${s.dataset.partLabel}: ${s.value}`).join(", ")
+      : colorSelect.value;
+
     const payload = {
       customerName: document.getElementById("customerNameInput").value.trim(),
       phone: document.getElementById("phoneInput").value.trim(),
@@ -342,7 +412,7 @@ function initOrderPage() {
       address: document.getElementById("addressInput").value.trim(),
       productId: productSelect.value,
       productLabel: productSelect.selectedOptions[0]?.textContent || productSelect.value,
-      color: colorSelect.value,
+      color: color,
       engraving: engravingInput.value.trim(),
       quantity: Number(document.getElementById("quantityInput").value) || 1,
       note: document.getElementById("noteInput").value.trim()

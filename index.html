@@ -422,11 +422,13 @@
                   </select>
                   <div class="invalid-feedback">Vui lòng chọn sản phẩm.</div>
                 </div>
-                <div class="col-sm-6 mb-3">
+                <div class="col-sm-6 mb-3" id="colorFieldWrap">
                   <label for="colorSelect">Chọn Màu</label>
                   <select class="form-select" id="colorSelect"></select>
                 </div>
               </div>
+
+              <div class="row d-none" id="comboColorFields"></div>
 
               <div class="row">
                 <div class="col-sm-8 mb-3">
@@ -492,8 +494,8 @@
               <p class="eyebrow mb-2" id="productModalMaterial"></p>
               <p class="mb-3 text-secondary" id="productModalDesc"></p>
               <p class="product-card__price fs-4 mb-3" id="productModalPrice"></p>
-              <p class="fw-semibold small mb-2">Chọn Màu</p>
-              <div class="d-flex gap-2 mb-4" id="productModalSwatches" role="group" aria-label="Chọn màu sản phẩm">
+              <p class="fw-semibold small mb-2" id="productModalColorLabel">Chọn Màu: <span id="productModalColorName" class="fw-normal text-secondary"></span></p>
+              <div class="mb-4" id="productModalSwatches" role="group" aria-label="Chọn màu sản phẩm">
               </div>
               <button type="button" class="btn btn-boutique w-100 mt-auto" id="productModalOrderBtn">Đặt Hàng
                 Ngay</button>

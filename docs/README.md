@@ -58,10 +58,10 @@ in `app.js`, and smooth-scrolls down to `#order` — no page navigation involved
 ## Adding a new product
 
 All products live in one place: `assets/js/products-data.js` (the `PRODUCTS` array), grouped
-by the `PRODUCT_GROUPS` array (currently by material family — "Kẹp Gỗ Tự Nhiên" and "Kẹp Cao
-Cấp & Đính Đá"). The product-group grid, the detail modal, and the order form's product/color
-dropdowns all read from this single array automatically — **add an object to `PRODUCTS` and it
-appears on the site with no other code changes.**
+by the `PRODUCT_GROUPS` array (currently 6 groups, in display order: Combo Set, Lược, Gương,
+Kẹp Thường, Kẹp Đổi Màu & Form Dài, Charm). The product-group grid, the detail modal, and the
+order form's product/color dropdowns all read from this single array automatically — **add an
+object to `PRODUCTS` and it appears on the site with no other code changes.**
 
 1. Open `assets/js/products-data.js`.
 2. Copy this template and paste it as a new entry inside the `PRODUCTS` array (before the
@@ -107,6 +107,38 @@ appears on the site with no other code changes.**
 | `colors` | Yes, 1+ | Each needs `name` (shown in the order form's color dropdown) and `hex` (swatch color) |
 | `image` | Yes | Primary photo — card thumbnail + carousel slide 1 |
 | `images` | Yes, 1+ | Carousel slides, in order; can repeat `image` as the first entry |
+
+### Combo products — multiple parts, each with its own color
+
+A combo (e.g. "Combo Set 1 — Gương, Lược & 2 Kẹp") bundles several items — gương, lược, kẹp —
+where the shopper picks a color for *each* item, not one color for the whole product. These
+use `parts` instead of `colors`:
+
+```js
+{
+  id: "combo-4",
+  name: "Combo Set 4 — Tên Combo",
+  description: "Mô tả ngắn.",
+  priceVND: 179000,
+  material: "Bộ 3 món",
+  group: "combo",
+  parts: [
+    { label: "Gương", qty: 1, colors: [{ name: "Hồng phấn", hex: "#F3A6C9" }, { name: "Trắng ngà", hex: "#FAF6F0" }] },
+    { label: "Lược", qty: 1, colors: [{ name: "Hồng phấn", hex: "#F3A6C9" }, { name: "Trắng ngà", hex: "#FAF6F0" }] },
+    { label: "Kẹp", qty: 2, colors: [{ name: "Hồng phấn", hex: "#F3A6C9" }, { name: "Trắng ngà", hex: "#FAF6F0" }] }
+  ],
+  image: "assets/images/product-01.svg",
+  images: ["assets/images/product-01.svg", "assets/images/product-02.svg"]
+}
+```
+
+A product has either `colors` (single color pick) or `parts` (one color pick per part) — never
+both. `qty` is optional and only affects the label shown (e.g. "Kẹp (x2)"); it does not create
+separate color pickers per unit. The product-detail modal renders one swatch group per part;
+picking a color in each and clicking "Đặt Hàng Ngay" prefills the order form, which swaps its
+single "Chọn Màu" dropdown for one dropdown per part (`app.js`'s `populateColors()` and
+`prefillOrderForm()`). The submitted order's `color` field becomes a joined string, e.g.
+`"Gương: Hồng phấn, Lược: Trắng ngà, Kẹp: Vàng"`.
 
 ### Adding a new product group
 
@@ -166,9 +198,13 @@ gallery image beyond the current 12 — there's no filename to reuse, so wire it
      `index.html`'s `#gallery` section, copying the markup of an existing one and updating the
      `href`, `<img src>`, `alt`, `data-gallery` (grouping tag for the lightbox — reuse
      `lifestyle`/`packaging`/`customer`/`engraving` or invent a new tag), and `data-title`.
-3. Recommended aspect ratio **4:5** (matches `.product-card__media`/`.gallery-item` — the CSS
-   crops to this ratio via `object-fit: cover`, so a different ratio still works but may crop
-   unexpectedly at the edges).
+3. Recommended aspect ratio for **product photos**: **1080×1920** (portrait 9:16, matches
+   real photography exported from a phone). `.product-card__media` and the modal carousel
+   render images at their natural width/height (no crop, no fixed frame), so any ratio
+   displays in full — 1080×1920 is just the size product photos are expected to arrive in.
+   `.gallery-item` (lifestyle/packaging/customer/engraving shots in `#gallery`) is a separate,
+   fixed 4:5 cropped frame (`object-fit: cover`) — pre-crop those close to 4:5 so nothing
+   important sits near the edges.
 4. No build step — save and reload.
 
 ## Deploying
