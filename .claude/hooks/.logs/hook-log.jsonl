@@ -872,3 +872,4 @@
 {"ts":"2026-07-19T04:36:16.127Z","hook":"dev-rules-reminder","event":"UserPromptSubmit","tool":"","target":"","note":"","dur":0,"status":"crash","exit":0,"error":"Unexpected token ."}
 {"ts":"2026-07-19T04:36:20.086Z","hook":"privacy-block","event":"PreToolUse","tool":"","target":"","note":"","dur":0,"status":"crash","exit":0,"error":"Unexpected token ."}
 {"ts":"2026-07-19T04:36:20.102Z","hook":"scout-block","event":"PreToolUse","tool":"","target":"","note":"","dur":0,"status":"crash","exit":0,"error":"Unexpected token ."}
+{"ts":"2026-07-19T04:39:31.954Z","hook":"session-state","status":"crash","error":"Unexpected token ."}
