@@ -59,8 +59,8 @@ const PRODUCTS = [
         ]
       }
     ],
-    image: "assets/images/combo1.png",
-    images: ["assets/images/combo1.png"]
+    image: "assets/images/Combo1.png",
+    images: ["assets/images/Combo1.png"]
   },
   {
     id: "combo-2",
@@ -89,8 +89,8 @@ const PRODUCTS = [
         ]
       }
     ],
-    image: "assets/images/combo2.png",
-    images: ["assets/images/combo2.png"]
+    image: "assets/images/Combo2.png",
+    images: ["assets/images/Combo2.png"]
   },
   {
     id: "combo-3",
@@ -127,8 +127,8 @@ const PRODUCTS = [
         ]
       }
     ],
-    image: "assets/images/combo3.png",
-    images: ["assets/images/combo3.png"]
+    image: "assets/images/Combo3.png",
+    images: ["assets/images/Combo3.png"]
   },
 
   {
@@ -143,8 +143,8 @@ const PRODUCTS = [
       { name: "B2", hex: "#95BDD7" },
       { name: "B3", hex: "#FFB6A6" }
     ],
-    image: "assets/images/luocto.png",
-    images: ["assets/images/luocto.png"]
+    image: "assets/images/LuocTo.png",
+    images: ["assets/images/LuocTo.png"]
   },
   {
     id: "luoc-mini",
@@ -158,8 +158,8 @@ const PRODUCTS = [
       { name: "Trắng ngà", hex: "#FAF6F0" },
       { name: "Vàng", hex: "#F5E1A4" }
     ],
-    image: "assets/images/luocmini.png",
-    images: ["assets/images/luocmini.png",]
+    image: "assets/images/LuocMini.png",
+    images: ["assets/images/LuocMini.png",]
   },
 
   {
@@ -250,8 +250,8 @@ const PRODUCTS = [
       { name: "A4 - Trắng", hex: "rgba(240, 240, 240, 1)ff" },
       { name: "A5 - Than", hex: "#383d41ff" }
     ],
-    image: "assets/images/kepa.png",
-    images: ["assets/images/kepa.png"]
+    image: "assets/images/KepA.png",
+    images: ["assets/images/KepA.png"]
   },
   {
     id: "kep-form-dai",
