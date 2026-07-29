@@ -1,11 +1,11 @@
-/* Shared product catalog — single source for index.html product groups, modal carousel, and order form. */
+/* Shared product catalog — single source for the filter chips, product gallery, modal, and order form. */
 const PRODUCT_GROUPS = [
-  { id: "combo", label: "Combo Set", eyebrow: "Trọn Bộ Tiết Kiệm", featured: true, badge: "Best Seller" },
-  { id: "luoc", label: "Lược", eyebrow: "" },
-  { id: "guong", label: "Gương", eyebrow: "Xinh Xắn Tiện Lợi" },
-  { id: "kep-thuong", label: "Kẹp Thường", eyebrow: "Đơn Giản Mỗi Ngày" },
-  { id: "kep-doi-mau", label: "Kẹp Đổi Màu & Form Dài", eyebrow: "Đổi Màu Diệu Kỳ" },
-  { id: "charm", label: "Charm", eyebrow: "Điểm Nhấn Đáng Yêu" }
+  { id: "combo", label: "Combo Set" },
+  { id: "luoc", label: "Lược" },
+  { id: "guong", label: "Gương" },
+  { id: "kep-thuong", label: "Kẹp Thường" },
+  { id: "kep-doi-mau", label: "Kẹp Đổi Màu & Form Dài" },
+  { id: "charm", label: "Charm" }
 ];
 
 /*
