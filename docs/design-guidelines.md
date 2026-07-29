@@ -1,64 +1,119 @@
 # Design Guidelines — Tiệm Tí Bé
 
-Style: **Korean Fashion Editorial Minimalist** — reference: CHUU (en.chuu.co.kr). Neutral black/white/ivory UI chrome; color and warmth come from product photography, not from page backgrounds. No glassmorphism, no gold, no pill buttons, no decorative motion.
+Style: **Modern Pink, Korean-Fashion-Catalog-Inspired** — reference: category-filtered
+catalogs and bold, motion-heavy editorial pages from Musinsa, Style Nanda, Zigzag,
+W Concept, 29CM. Vivid pink is the brand color (not a muted accent); heavy scroll-driven
+motion; soft-rounded "sheet" sections replace hard-bordered boxes.
+
+This supersedes the earlier "Korean Editorial Minimalist" (black/white, no motion)
+direction below — reversed 2026-07-29 on explicit user request to modernize with pink
+tone and heavy animation.
 
 ## Color Palette
 
 | Token | Hex | Usage |
 |---|---|---|
-| `--color-bg` | `#FFFFFF` | Page background |
-| `--color-surface-muted` | `#F6F3F0` | Alternating section backgrounds, muted surfaces (subtle warm off-white, not colored) |
-| `--color-white` | `#FFFFFF` | Cards, form surfaces |
-| `--color-ink` | `#171412` | Body text, headings, buttons, structural borders — near-black, 15:1+ contrast on white |
-| `--color-ink-soft` | `#6B6660` | Secondary/muted text — 5.6:1 contrast on white |
-| `--color-accent` | `#8F4A5D` | Text-safe accent (6.3:1 on white) — price, active nav link, links. Sparing use only |
-| `--color-accent-bright` | `#B4677A` | Decorative-only accent (borders, swatch selection ring) — do not use for body text (fails 4.5:1) |
-| `--color-border` | `#E4E0DA` | Hairline dividers, card borders, input borders |
-| `--color-border-strong` | `#171412` | Structural black dividers (nav bottom border on scroll, timeline connector) |
+| `--color-bg` | `#FFF8FA` | Page background (warm cream, not stark white) |
+| `--color-surface` | `#FFFFFF` | Cards, form surfaces, modal |
+| `--color-surface-muted` | `#FFE9F2` | Alternating section backgrounds (blush) |
+| `--color-surface-muted-2` | `#FFD6E8` | Deeper blush accents |
+| `--color-ink` | `#2A1420` | Body text, headings — warm near-black, high contrast on white/blush |
+| `--color-ink-soft` | `#8A6072` | Secondary/muted text |
+| `--color-accent` | `#FF3D96` | Primary brand pink — buttons, gradients, active states, icons |
+| `--color-accent-deep` | `#C4166B` | Text-safe accent — links, eyebrow labels, price-adjacent text |
+| `--color-accent-soft` | `#FFB8DD` | Decorative-only tint (marquee text, subtle fills) |
+| `--color-border` / `--color-border-strong` | `#FFD6E8` / `#FF9BC8` | Hairline dividers, card borders |
 
-No gold. The old pink-primary/gold palette is retired — `--color-accent` carries the brand's rose DNA at a muted, text-safe level, used only where it needs to draw the eye (price, active state), never as a fill or background.
+`--gradient-accent` (`#FF6FB0 → #FF3D96 → #C4166B`) drives buttons, active chips, badges,
+and gradient text — the palette's signature move.
 
 ## Typography
 
-- **Single family:** Be Vietnam Pro (400–800) for both headings and body — no serif pairing. Chosen for full Vietnamese diacritic support and a clean geometric-humanist character close to CHUU's wordmark/UI type.
-- **Headings:** 700–800 weight, letter-spacing -0.01em to -0.02em at large sizes (hero).
-- **Body:** 400 weight, line-height 1.6+.
-- **Eyebrow/labels/captions:** uppercase, letter-spacing +0.06em to +0.14em, 600–700 weight, small size (0.7–0.8rem) — mirrors CHUU's "New In" / "LOOK 01" micro-labels.
+- **Single family:** Be Vietnam Pro (400–900) for full Vietnamese diacritic support.
+- **Headings:** 800–900 weight, letter-spacing -0.01em to -0.02em, big scale at hero
+  (`clamp(2.4rem, 6vw, 4.5rem)`).
+- **Eyebrow/labels:** uppercase, +0.14em letter-spacing, deep-pink, prefixed with a short
+  accent dash (`.eyebrow::before`).
+- **Engraving preview text** (`.preview-engrave-text`, `--font-engrave`): "Cooper Std Black
+  Italic" — self-hosted (`assets/fonts/CooperStdBlackItalic.ttf`, user-supplied/licensed —
+  do not redistribute without checking the license), matching the bold bubble-serif look
+  of the real engraved product photos. Falls back to Fredoka, then Be Vietnam Pro — Cooper
+  Std has no Vietnamese diacritics, so accented characters render per-glyph in the fallback
+  fonts automatically.
 
 ## Shape & Surface
 
-- **Border radius:** `--radius: 0px` on cards, buttons, product/gallery images, form inputs. `--radius-sm: 2px` reserved for small elements (badges, accordion). `--radius-pill` only for genuinely circular elements (avatars, color swatches, icon rings) — never for buttons.
-- **Shadows:** none, anywhere. Depth and separation come from 1px hairline borders (`--color-border`) and, on hover/scroll, from a strengthened black border (`--color-border-strong`).
-- **No glassmorphism, no blur.** Nav is flat white with a 1px bottom border that darkens on scroll.
+- **Border radius:** `--radius: 22px` on cards/buttons/images — soft, modern, not flat.
+  `--radius-pill` for buttons, chips, and badges.
+- **Shadows:** soft pink-tinted glow shadows (`--shadow-soft`, `--shadow-pop`) on hover
+  and on primary buttons/badges — replaces the old flat hairline-only depth model.
+- **Sheet sections:** `.section--sheet` rounds a section's top corners and pulls it up
+  over the previous section (`margin-top: -40px`) instead of a hard `border-top` divider
+  — used on the product gallery and order sections for a layered, non-boxy transition.
 
 ## Motion
 
-- AOS: `fade-up` for section content, kept subtle (this is a UX carry-over, not part of CHUU's static aesthetic — acceptable since it's a functional reveal, not decoration).
-- No floating/decorative animation (no ribbons, sparkles, parallax hero) — removed as inconsistent with a static, photography-led editorial look.
-- Hover: product/gallery images zoom subtly (`scale(1.04)`); cards do not lift or gain shadow. Buttons invert fill/text color over 200ms `cubic-bezier(0.4,0,0.2,1)` (no bounce/overshoot easing).
+- **Stack:** GSAP + ScrollTrigger (CDN), replacing AOS — AOS's fade-up-only was too thin
+  for the "heavy animation" brief. Progressive enhancement: elements are fully visible by
+  default in CSS; GSAP sets the hidden state itself (`gsap.from(...)`), so a blocked CDN
+  or `prefers-reduced-motion: reduce` leaves content static and visible rather than stuck
+  hidden.
+- `.reveal` — single element fades/slides in on scroll. `.reveal-stagger` — direct
+  children stagger in (bento grid, timeline row, gallery masonry, product gallery).
+- Hero: floating blurred gradient blobs (`.hero__blob`, pure CSS `@keyframes`), a bouncing
+  scroll cue, and a rotated marquee ribbon overlapping the hero's bottom edge.
+- Marquee (`.marquee`): pure CSS infinite loop, pauses on hover, disabled under reduced
+  motion.
+- Timeline: a connecting track (`.timeline-track__fill`) scrubs its width from the
+  section's scroll position via ScrollTrigger.
+- Stat counters (`.counter[data-target]`): count up once when scrolled into view.
+- `.magnetic` buttons (hero CTA, submit, floating order button) subtly follow the cursor
+  on pointer-fine devices; skipped on touch and under reduced motion.
+- `prefers-reduced-motion: reduce` disables all of the above (blobs, marquee, magnetic,
+  ScrollTrigger reveals, hover transforms) — see the media query at the end of
+  `style.css`.
 
 ## Layout
 
-- **Single page.** All content (hero, product groups, gallery, FAQ, order form) lives in `index.html` as stacked `<section>`s reached by scroll or same-page anchor (`#san-pham`, `#gallery`, `#faq`, `#order`) — no separate HTML files, no tab nav.
-- Mobile-first Bootstrap grid (`container`, `row`, `col-*`), breakpoints: stack to 1 column <576px, 2 columns products on `sm`/`md`, 3 on `lg+`.
-- Generous whitespace: section vertical padding min `5rem` desktop / `3rem` mobile.
-- Sticky navbar: flat white, thin bottom border, border darkens + padding tightens on scroll (no shadow, no shrink-blur). Just brand + a single "Đặt Hàng" CTA — no menu items to manage.
-- Product/gallery images: `object-fit: cover`, lazy-loaded (`loading="lazy"`), zero border-radius, edge-to-edge or thin-gap grid.
+- **Single page**, same anchor sections as before (`#san-pham`, `#gallery`, `#faq`,
+  `#order`), but no longer stacked as uniform bordered boxes:
+  hero → marquee → bento "why choose us" → chip-filtered product gallery → horizontal
+  timeline → photo gallery → FAQ → order → footer.
+- Mobile-first Bootstrap grid; bento collapses to 2 columns (`md`) then 1 (`sm`).
+- Sticky navbar: translucent blush blur, pink-gradient wordmark, gradient-pill CTA.
 
 ## Accessibility
 
-- Body text min 4.5:1 contrast against `#FFFFFF`/`#F6F3F0` (use `--color-ink`, not `--color-accent-bright`, for paragraph text).
-- `--color-accent` (`#8F4A5D`) is verified 4.5:1+ AA for normal text on white; `--color-accent-bright` is decorative-only (borders/rings), not for text.
-- All interactive elements keyboard-reachable; focus-visible outline in `--color-ink`.
-- `prefers-reduced-motion: reduce` disables transitions on buttons/cards/images.
+- Body text on `--color-bg`/`--color-surface-muted` uses `--color-ink` (verified 4.5:1+).
+- All interactive elements keyboard-reachable; focus-visible outline in
+  `--color-accent-deep`.
+- `prefers-reduced-motion: reduce` disables decorative animation and hover transforms.
 - Alt text on every image; form fields have associated `<label>`s.
+- The product-detail modal's `<h2 id="productModalLabel">` is visually hidden but still
+  set to the product name via JS, so screen-reader users still get an accessible name
+  even though the visible modal has no text title.
+- Product card `alt` text and the modal's `#productModalDesc` (visually hidden) repeat
+  name/material/price/description as real text — the source images bake that info in
+  visually, but a screen reader can't read pixels, so it has to exist as text somewhere.
 
 ## Component Notes
 
-- **Product groups:** products grouped by material family (`PRODUCT_GROUPS` in `products-data.js`) into titled sections, each a 3-column card grid (3–5 cards/group). Card face is minimal — image (4:5) → name → price only, no description/swatches/button on the card itself.
-- **Product card:** the whole card is the click/tap target (`role="button" tabindex="0"`, not an `<a>` — it opens a modal, it doesn't navigate). Hover/focus: image zooms subtly, border strengthens.
-- **Product detail modal:** Bootstrap modal + Bootstrap Carousel (`images[]` per product — main shot + supplementary gallery placeholders until real photography lands), description/price/material, color swatches, and an "Đặt Hàng Ngay" button that closes the modal, pre-fills the order form via `prefillOrderForm(productId, colorName)`, and smooth-scrolls to `#order`. Flat styling: 0 radius, hairline border, no shadow; carousel prev/next are 44px ink-filled circles (touch target + contrast over photography).
-- **Timeline (How It Works):** 4 numbered cards, black-outline circle numerals, connected by a thin black dashed connector (desktop only).
-- **Testimonial carousel:** Bootstrap Carousel, avatar circle with black ring + 5-star rating + short Vietnamese quote.
-- **FAQ:** Bootstrap Accordion, hairline-bordered items, muted-surface fill on open (no colored icon filter).
-- **Live order preview:** hairline-bordered neutral card, engraved name text updating live via `input` event, black divider line, centered.
+- **Product gallery:** all products render as a single chip-filtered image grid
+  (`#filterChips` + `#productGroups`), not stacked per-group boxed sections. Cards show
+  **only the product image** — no name/material/price text — because the source images
+  already bake in that information (see `docs/tech-stack.md`). Clicking a chip filters
+  the grid with a GSAP fade transition; clicking a card still opens the detail modal.
+- **Product card:** whole card is the click/tap target (`role="button" tabindex="0"`).
+  Hover: image scales + tilts slightly, card lifts with a soft shadow. Combo-group cards
+  get a pulsing "Best Seller" pill badge (decorative, not baked into the image).
+- **Product detail modal:** carousel (full `images[]`) + color swatches + "Đặt Hàng Ngay"
+  button only — no redundant name/description/price text block. `<h2>` title kept for
+  accessibility only (visually hidden).
+- **Bento "why choose us":** one large accent tile + four smaller tiles (2 feature, 2
+  animated stat counters) in an asymmetric grid — replaces the old 3 equal bordered-circle
+  cards.
+- **Timeline (How It Works):** 4 cards in a row (desktop) with a shared gradient progress
+  line that fills as the section scrolls into view, instead of per-step circle-and-dashed
+  connectors.
+- **FAQ:** Bootstrap Accordion, rounded items, open state gets the gradient-pink fill.
+- **Live order preview:** rounded blush-gradient frame, unchanged functionality.

@@ -55,29 +55,58 @@ function escapeHtml(str) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  if (window.AOS) {
-    AOS.init({ disable: prefersReducedMotion, once: true, offset: 120, duration: 700 });
-  }
-
   const yearEl = document.getElementById("year");
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
   initScrollProgress();
   initBackToTop();
   initNavbarShrink();
+  initSmoothAnchors();
   initProductGroups();
   initProductModal();
   initGallery();
   initOrderPage();
   initTestimonialCarousel();
-
-  if (window.AOS) AOS.refresh();
+  initBentoVideo();
+  initHeroPreview();
+  initMotion();
+  initMagnetic();
 });
 
 function initTestimonialCarousel() {
   const el = document.getElementById("testimonialCarousel");
   if (!el || !prefersReducedMotion || typeof bootstrap === "undefined") return;
   bootstrap.Carousel.getOrCreateInstance(el).pause();
+}
+
+function initBentoVideo() {
+  const video = document.querySelector(".bento__video");
+  if (!video || !prefersReducedMotion) return;
+  video.pause();
+}
+
+/* Engraving-preview tile next to the hero video: typing a name here carries it
+   into the real order form's engraving field once the visitor picks a product. */
+function initHeroPreview() {
+  const input = document.getElementById("heroEngravingInput");
+  const preview = document.getElementById("heroPreviewText");
+  const cta = document.getElementById("heroPreviewCta");
+  if (!input || !preview) return;
+
+  input.addEventListener("input", () => {
+    preview.textContent = input.value.trim() || "kl87";
+  });
+
+  if (cta) {
+    cta.addEventListener("click", () => {
+      const name = input.value.trim();
+      if (!name) return;
+      const orderEngravingInput = document.getElementById("engravingInput");
+      const orderPreviewText = document.getElementById("previewText");
+      if (orderEngravingInput) orderEngravingInput.value = name;
+      if (orderPreviewText) orderPreviewText.textContent = name;
+    });
+  }
 }
 
 function initScrollProgress() {
@@ -111,55 +140,185 @@ function initNavbarShrink() {
   }, { passive: true });
 }
 
+/* Same-page section links (nav CTA, hero CTAs, floating order button) scroll to their
+   target instead of doing a native hash navigation, so the URL bar never picks up a
+   "#section" fragment. The "Bỏ qua đến nội dung chính" skip link is left alone — it's an
+   accessibility feature that relies on the browser's native hash-focus behavior. */
+function initSmoothAnchors() {
+  document.addEventListener("click", (e) => {
+    const link = e.target.closest('a[href^="#"]');
+    if (!link || link.getAttribute("href") === "#main") return;
+
+    e.preventDefault();
+    const targetId = link.getAttribute("href").slice(1);
+    if (!targetId) {
+      window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
+      return;
+    }
+    const target = document.getElementById(targetId);
+    if (target) target.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth" });
+  });
+}
+
 /* ==========================================================================
-   Product groups — card grid rendering
+   Motion — GSAP + ScrollTrigger scroll reveals, timeline progress, counters.
+   Progressive enhancement: markup is fully visible by default, so a blocked
+   CDN or prefers-reduced-motion simply leaves everything static in place.
+   ========================================================================== */
+
+function initMotion() {
+  if (prefersReducedMotion || typeof gsap === "undefined") return;
+  if (typeof ScrollTrigger !== "undefined") gsap.registerPlugin(ScrollTrigger);
+
+  document.querySelectorAll(".reveal").forEach((el) => {
+    gsap.from(el, {
+      opacity: 0,
+      y: 36,
+      duration: 0.8,
+      ease: "power3.out",
+      immediateRender: false,
+      scrollTrigger: { trigger: el, start: "top 88%" }
+    });
+  });
+
+  document.querySelectorAll(".reveal-stagger").forEach((group) => {
+    const children = [...group.children];
+    if (!children.length) return;
+    gsap.from(children, {
+      opacity: 0,
+      y: 36,
+      duration: 0.7,
+      ease: "power3.out",
+      stagger: 0.05,
+      immediateRender: false,
+      scrollTrigger: { trigger: group, start: "top 88%" }
+    });
+  });
+
+  const trackFill = document.querySelector(".timeline-track__fill");
+  const timelineRow = document.querySelector(".timeline-row");
+  if (trackFill && timelineRow) {
+    gsap.to(trackFill, {
+      width: "100%",
+      ease: "none",
+      scrollTrigger: { trigger: timelineRow, start: "top 75%", end: "bottom 55%", scrub: true }
+    });
+  }
+
+  document.querySelectorAll(".counter").forEach((el) => {
+    const target = Number(el.dataset.target) || 0;
+    const counted = { value: 0 };
+    ScrollTrigger.create({
+      trigger: el,
+      start: "top 90%",
+      once: true,
+      onEnter: () => {
+        gsap.to(counted, {
+          value: target,
+          duration: 1.3,
+          ease: "power1.out",
+          onUpdate: () => { el.textContent = Math.round(counted.value); }
+        });
+      }
+    });
+  });
+}
+
+/* Subtle cursor-follow effect on primary CTAs — desktop pointer devices only. */
+function initMagnetic() {
+  if (prefersReducedMotion || !window.matchMedia("(pointer: fine)").matches) return;
+  document.querySelectorAll(".magnetic").forEach((el) => {
+    el.addEventListener("mousemove", (e) => {
+      const rect = el.getBoundingClientRect();
+      const x = (e.clientX - rect.left - rect.width / 2) * 0.3;
+      const y = (e.clientY - rect.top - rect.height / 2) * 0.3;
+      if (typeof gsap !== "undefined") {
+        gsap.to(el, { x, y, duration: 0.3, ease: "power2.out" });
+      } else {
+        el.style.transform = `translate(${x}px, ${y}px)`;
+      }
+    });
+    el.addEventListener("mouseleave", () => {
+      if (typeof gsap !== "undefined") {
+        gsap.to(el, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.4)" });
+      } else {
+        el.style.transform = "";
+      }
+    });
+  });
+}
+
+/* ==========================================================================
+   Product gallery — image-only cards (source images already bake in name,
+   price, and material), with a chip filter across PRODUCT_GROUPS.
    ========================================================================== */
 
 function initProductGroups() {
   const container = document.getElementById("productGroups");
+  const chipsContainer = document.getElementById("filterChips");
   if (!container || typeof PRODUCTS === "undefined" || typeof PRODUCT_GROUPS === "undefined") return;
 
-  container.innerHTML = PRODUCT_GROUPS.map((group, groupIndex) => {
-    const groupProducts = PRODUCTS.filter((p) => p.group === group.id);
-    const cards = groupProducts.map((p, i) => renderProductCard(p, i, group.featured)).join("");
-    const badge = group.featured && group.badge
-      ? `<span class="product-group__badge">${escapeHtml(group.badge)}</span>`
-      : "";
-    return `
-      <div class="product-group mb-5${group.featured ? " product-group--featured" : ""}">
-        <div class="product-group__header mb-4" data-aos="fade-up">
-          <span class="product-group__index" aria-hidden="true">${String(groupIndex + 1).padStart(2, "0")}</span>
-          <div>
-            <p class="eyebrow mb-1">${escapeHtml(group.eyebrow)}</p>
-            <h3 class="h4 mb-0">${escapeHtml(group.label)}${badge}</h3>
-          </div>
-        </div>
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
-          ${cards}
-        </div>
-      </div>`;
-  }).join("");
+  container.innerHTML = PRODUCTS.map((p) => renderProductCard(p)).join("");
+
+  if (!chipsContainer) return;
+  const chips = [{ id: "all", label: "Tất Cả" }, ...PRODUCT_GROUPS.map((g) => ({ id: g.id, label: g.label }))];
+  chipsContainer.innerHTML = chips.map((c, i) => `
+    <button type="button" class="chip${i === 0 ? " is-active" : ""}" data-filter="${escapeHtml(c.id)}">${escapeHtml(c.label)}</button>`).join("");
+
+  chipsContainer.addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    if (!chip) return;
+    chipsContainer.querySelectorAll(".chip").forEach((c) => c.classList.remove("is-active"));
+    chip.classList.add("is-active");
+    filterProducts(chip.dataset.filter);
+  });
 }
 
-function renderProductCard(product, index, isFeatured) {
+function renderProductCard(product) {
   const name = escapeHtml(product.name);
-  const material = escapeHtml(product.material);
-  const tag = isFeatured ? `<span class="product-card__tag">Best Seller</span>` : "";
+  const tag = product.group === "combo" ? `<span class="product-card__tag">Best Seller</span>` : "";
+  // The image itself carries name/material/price visually — alt text repeats them as text
+  // so screen-reader users (who can't read pixels) still get that info, not just the name.
+  const altText = escapeHtml(`${product.name} — ${product.material} — ${formatVND(product.priceVND)}`);
   return `
-    <div class="col">
-      <div class="product-card hover-lift${isFeatured ? " product-card--featured" : ""}" role="button" tabindex="0" data-product-id="${product.id}"
-        aria-label="Xem chi tiết ${name}" data-aos="fade-up" data-aos-delay="${(index % 3) * 80}">
-        <div class="product-card__media">
-          ${tag}
-          <img src="${product.image}" alt="${name}" loading="lazy">
-        </div>
-        <div class="product-card__body" style="align-items: center">
-          <p class="product-card__material mb-0">${material}</p>
-          <h4 class="product-card__name mb-0">${name}</h4>
-          <p class="product-card__price mb-0">${formatVND(product.priceVND)}</p>
-        </div>
+    <div class="product-card" role="button" tabindex="0" data-product-id="${product.id}" data-group="${escapeHtml(product.group)}"
+      aria-label="Xem chi tiết ${name}">
+      <div class="product-card__media">
+        ${tag}
+        <img src="${product.image}" alt="${altText}" loading="lazy">
       </div>
     </div>`;
+}
+
+function filterProducts(groupId) {
+  const cards = [...document.querySelectorAll("#productGroups .product-card")];
+  const matching = cards.filter((card) => groupId === "all" || card.dataset.group === groupId);
+  const nonMatching = cards.filter((card) => !matching.includes(card));
+
+  const revealMatching = () => {
+    matching.forEach((card) => card.classList.remove("is-hidden"));
+    if (typeof gsap !== "undefined" && !prefersReducedMotion) {
+      gsap.fromTo(matching, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.35, stagger: 0.025, ease: "power2.out" });
+    }
+  };
+
+  if (typeof gsap !== "undefined" && !prefersReducedMotion && nonMatching.length) {
+    gsap.to(nonMatching, {
+      opacity: 0,
+      scale: 0.92,
+      duration: 0.2,
+      stagger: 0.01,
+      ease: "power1.in",
+      onComplete: () => {
+        nonMatching.forEach((card) => card.classList.add("is-hidden"));
+        gsap.set(nonMatching, { clearProps: "opacity,scale" });
+        revealMatching();
+      }
+    });
+  } else {
+    nonMatching.forEach((card) => card.classList.add("is-hidden"));
+    revealMatching();
+  }
 }
 
 /* ==========================================================================
@@ -172,9 +331,7 @@ function initProductModal() {
   if (!groupsContainer || !modalEl || typeof PRODUCTS === "undefined" || typeof bootstrap === "undefined") return;
 
   const modalTitle = document.getElementById("productModalLabel");
-  const modalMaterial = document.getElementById("productModalMaterial");
   const modalDesc = document.getElementById("productModalDesc");
-  const modalPrice = document.getElementById("productModalPrice");
   const carouselEl = document.getElementById("productModalCarousel");
   const carouselInner = document.getElementById("productModalCarouselInner");
   const swatchesEl = document.getElementById("productModalSwatches");
@@ -192,10 +349,12 @@ function initProductModal() {
     currentProduct = product;
     const name = escapeHtml(product.name);
 
+    // Both visually hidden — the carousel image shows name/price/material/description,
+    // but a screen reader can't read pixels, so repeat that info as real text.
     modalTitle.textContent = product.name;
-    modalMaterial.textContent = product.material;
-    modalDesc.textContent = product.description;
-    modalPrice.textContent = formatVND(product.priceVND);
+    if (modalDesc) {
+      modalDesc.textContent = `${product.description} ${product.material} — ${formatVND(product.priceVND)}`;
+    }
 
     carouselInner.innerHTML = product.images.map((img, i) => `
       <div class="carousel-item${i === 0 ? " active" : ""}">
@@ -387,7 +546,7 @@ function initOrderPage() {
   productSelect.addEventListener("change", () => populateColors(productSelect.value));
 
   engravingInput.addEventListener("input", () => {
-    previewText.textContent = engravingInput.value.trim() || "Sophia";
+    previewText.textContent = engravingInput.value.trim() || "kl87";
   });
 
   populateColors(productSelect.value);
@@ -402,7 +561,7 @@ function initOrderPage() {
     const selectedProduct = PRODUCTS.find((p) => p.id === productSelect.value);
     const color = selectedProduct && selectedProduct.parts
       ? [...comboColorFields.querySelectorAll(".combo-color-select")]
-          .map((s) => `${s.dataset.partLabel}: ${s.value}`).join(", ")
+        .map((s) => `${s.dataset.partLabel}: ${s.value}`).join(", ")
       : colorSelect.value;
 
     const payload = {
@@ -441,7 +600,7 @@ function initOrderPage() {
     resetBtn.addEventListener("click", () => {
       form.reset();
       form.classList.remove("was-validated", "d-none");
-      previewText.textContent = "Sophia";
+      previewText.textContent = "kl87";
       populateColors(productSelect.value);
       successPanel.classList.remove("is-visible");
       const submitBtn = form.querySelector('button[type="submit"]');

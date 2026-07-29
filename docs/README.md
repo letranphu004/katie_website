@@ -25,9 +25,10 @@ python3 -m http.server 8000
 ├── assets/
 │   ├── css/style.css       — design tokens + all custom styles
 │   ├── js/
-│   │   ├── products-data.js — PRODUCTS catalog + PRODUCT_GROUPS (used by the product-group grid, modal, order form)
+│   │   ├── products-data.js — PRODUCTS catalog + PRODUCT_GROUPS (used by the filter chips, product gallery, modal, order form)
 │   │   └── app.js           — API module (submitOrder) + all UI logic
-│   └── images/              — placeholder SVGs, see below
+│   ├── images/              — placeholder SVGs + product photos, see below
+│   └── fonts/               — self-hosted font files not on Google Fonts (Cooper Std Black Italic — user-supplied, licensed; see design-guidelines.md)
 ├── components/
 │   ├── navbar.html          — canonical header snippet (reference only, see below)
 │   └── footer.html          — canonical footer snippet (reference only, see below)
@@ -47,21 +48,26 @@ canonical reference copies of the header/footer markup — **if you change eithe
 There is no multi-page navigation. `index.html` is a single scrollable page; the header has
 just the brand and one "Đặt Hàng" CTA that jumps to `#order`. Sections, in order:
 
-`hero` → why-choose-us → `#san-pham` (product groups) → how-it-works → testimonials →
-`#gallery` → `#faq` → `#order`
+`hero` → marquee → why-choose-us (bento) → `#san-pham` (single chip-filtered product image
+gallery) → how-it-works (timeline) → testimonials → `#gallery` → `#faq` → `#order`
 
-Clicking a product card opens a shared `#productModal` (Bootstrap Modal + Carousel) with
-that product's images, description, price, and color swatches. Its "Đặt Hàng Ngay" button
-closes the modal, pre-fills the product/color into the order form via `prefillOrderForm()`
-in `app.js`, and smooth-scrolls down to `#order` — no page navigation involved.
+Product cards show only the image (the source image already has name/price/material baked
+in) and sit in one grid filterable by `PRODUCT_GROUPS` chips, instead of one boxed section
+per group. Clicking a card opens a shared `#productModal` (Bootstrap Modal + Carousel) with
+that product's images and color swatches (description/price/material are kept as
+screen-reader-only text in the modal and in each card's `alt` text — see
+`docs/design-guidelines.md` accessibility notes). Its "Đặt Hàng Ngay" button closes the
+modal, pre-fills the product/color into the order form via `prefillOrderForm()` in
+`app.js`, and smooth-scrolls down to `#order` — no page navigation involved.
 
 ## Adding a new product
 
 All products live in one place: `assets/js/products-data.js` (the `PRODUCTS` array), grouped
 by the `PRODUCT_GROUPS` array (currently 6 groups, in display order: Combo Set, Lược, Gương,
-Kẹp Thường, Kẹp Đổi Màu & Form Dài, Charm). The product-group grid, the detail modal, and the
-order form's product/color dropdowns all read from this single array automatically — **add an
-object to `PRODUCTS` and it appears on the site with no other code changes.**
+Kẹp Thường, Kẹp Đổi Màu & Form Dài, Charm). The filter chips, the product gallery, the detail
+modal, and the order form's product/color dropdowns all read from this single array
+automatically — **add an object to `PRODUCTS` and it appears on the site with no other code
+changes.**
 
 1. Open `assets/js/products-data.js`.
 2. Copy this template and paste it as a new entry inside the `PRODUCTS` array (before the
@@ -71,9 +77,9 @@ object to `PRODUCTS` and it appears on the site with no other code changes.**
    {
      id: "kep-ten-khong-dau-khong-trung",   // unique, no diacritics, used for internal links
      name: "Tên Sản Phẩm Đầy Đủ",
-     description: "Mô tả ngắn 1-2 câu — shown in the detail modal.",
+     description: "Mô tả ngắn 1-2 câu — screen-reader-only text in the detail modal.",
      priceVND: 159000,                      // plain integer, no thousands separators
-     material: "Chất liệu (vd: Gỗ sồi tự nhiên)", // shown as the small label on the card + modal eyebrow
+     material: "Chất liệu (vd: Gỗ sồi tự nhiên)", // in card alt text + order-form dropdown, not shown visually
      group: "go-tu-nhien",                  // MUST match an existing PRODUCT_GROUPS id (see below)
      colors: [
        { name: "Tên màu", hex: "#RRGGBB" },
@@ -92,20 +98,20 @@ object to `PRODUCTS` and it appears on the site with no other code changes.**
 4. Make sure every path in `image`/`images[]` points at a file that actually exists in
    `assets/images/` (see "Adding a new photo" below if the product needs brand-new images rather
    than reusing an existing placeholder/gallery shot).
-5. Save and reload — no build step, the new product shows up in its group's grid immediately.
+5. Save and reload — no build step, the new product shows up in the gallery immediately.
 
 **Field reference:**
 
 | Field | Required | Notes |
 |---|---|---|
 | `id` | Yes | Unique across all products; used to link the modal's "Đặt Hàng Ngay" button to the order form |
-| `name` | Yes | Full product name, shown on the card, modal title, and order-form dropdown |
-| `description` | Yes | 1-2 sentences, modal only |
-| `priceVND` | Yes | Integer (e.g. `149000`), formatted as `149.000₫` automatically by `formatVND()` |
-| `material` | Yes | Short label — card eyebrow + modal eyebrow |
-| `group` | Yes | Must equal one `PRODUCT_GROUPS[].id` — see "Adding a new product group" below |
+| `name` | Yes | Full product name — shown visually only in the order-form dropdown; everywhere else (card `alt`, modal title) it's screen-reader-only, since the image itself displays it |
+| `description` | Yes | 1-2 sentences; screen-reader-only text in the modal (`#productModalDesc`) |
+| `priceVND` | Yes | Integer (e.g. `149000`), formatted as `149.000₫` automatically by `formatVND()`; shown visually only in the order-form dropdown |
+| `material` | Yes | Short label; shown visually only in the order-form dropdown |
+| `group` | Yes | Must equal one `PRODUCT_GROUPS[].id` — see "Adding a new product group" below; also drives which filter chip shows the card |
 | `colors` | Yes, 1+ | Each needs `name` (shown in the order form's color dropdown) and `hex` (swatch color) |
-| `image` | Yes | Primary photo — card thumbnail + carousel slide 1 |
+| `image` | Yes | Primary photo — the card shows only this, no overlaid text, since the image is expected to already contain name/price/material |
 | `images` | Yes, 1+ | Carousel slides, in order; can repeat `image` as the first entry |
 
 ### Combo products — multiple parts, each with its own color
@@ -142,15 +148,17 @@ single "Chọn Màu" dropdown for one dropdown per part (`app.js`'s `populateCol
 
 ### Adding a new product group
 
-Groups are what render as the titled sections ("Kẹp Gỗ Tự Nhiên", etc.) above each grid. To
-add a third group, add an entry to `PRODUCT_GROUPS` at the top of `products-data.js`:
+Groups are what render as a filter chip (`label`) above the product gallery — `eyebrow` and
+`featured`/`badge` are no longer used visually (the gallery is one flat, chip-filtered grid,
+not per-group titled sections). To add a new group, add an entry to `PRODUCT_GROUPS` at the
+top of `products-data.js`:
 
 ```js
-{ id: "kep-mua-le", label: "Kẹp Mùa Lễ Hội", eyebrow: "Giới Hạn" }
+{ id: "kep-mua-le", label: "Kẹp Mùa Lễ Hội" }
 ```
 
-Then set `group: "kep-mua-le"` on any product that belongs to it. A new section (eyebrow +
-heading + card grid) appears automatically — no `index.html`/`app.js` changes needed.
+Then set `group: "kep-mua-le"` on any product that belongs to it. A new "Kẹp Mùa Lễ Hội"
+filter chip appears automatically next to "Tất Cả" — no `index.html`/`app.js` changes needed.
 
 ## Adding photos
 
