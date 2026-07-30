@@ -57,8 +57,10 @@ per group. Clicking a card opens a shared `#productModal` (Bootstrap Modal + Car
 that product's images and color swatches (description/price/material are kept as
 screen-reader-only text in the modal and in each card's `alt` text — see
 `docs/design-guidelines.md` accessibility notes). Its "Đặt Hàng Ngay" button closes the
-modal, pre-fills the product/color into the order form via `prefillOrderForm()` in
-`app.js`, and smooth-scrolls down to `#order` — no page navigation involved.
+modal, appends the product name + chosen color(s) into the contact form's message field
+via `appendToContactNote()` in `app.js`, and smooth-scrolls down to `#order` — the `#order`
+section is a plain contact form now (see "Contact form" below), not a per-product order
+form, so there's no product/color select to prefill.
 
 ## Adding a new product
 
@@ -141,10 +143,9 @@ use `parts` instead of `colors`:
 A product has either `colors` (single color pick) or `parts` (one color pick per part) — never
 both. `qty` is optional and only affects the label shown (e.g. "Kẹp (x2)"); it does not create
 separate color pickers per unit. The product-detail modal renders one swatch group per part;
-picking a color in each and clicking "Đặt Hàng Ngay" prefills the order form, which swaps its
-single "Chọn Màu" dropdown for one dropdown per part (`app.js`'s `populateColors()` and
-`prefillOrderForm()`). The submitted order's `color` field becomes a joined string, e.g.
-`"Gương: Hồng phấn, Lược: Trắng ngà, Kẹp: Vàng"`.
+picking a color in each and clicking "Đặt Hàng Ngay" joins the picks into one line (e.g.
+`"Gương: Hồng phấn, Lược: Trắng ngà, Kẹp: Vàng"`) and appends it, along with the product
+name, to the contact form's message field via `appendToContactNote()`.
 
 ### Adding a new product group
 
@@ -202,17 +203,18 @@ gallery image beyond the current 12 — there's no filename to reuse, so wire it
 2. **Point something at it:**
    - New product photo → its `image`/`images[]` fields in `products-data.js` (see "Adding a
      new product" above).
-   - New gallery photo → add a new `<a class="gallery-item glightbox" ...>` block in
-     `index.html`'s `#gallery` section, copying the markup of an existing one and updating the
-     `href`, `<img src>`, `alt`, `data-gallery` (grouping tag for the lightbox — reuse
-     `lifestyle`/`packaging`/`customer`/`engraving` or invent a new tag), and `data-title`.
+   - New gallery photo → add a new `<a class="gallery-strip__item glightbox" ...>` block
+     inside `#galleryStrip` in `index.html`'s `#gallery` section, copying the markup of an
+     existing one and updating the `href`, `<img src>`, `alt`, `data-gallery` (grouping tag
+     for the lightbox — reuse `lifestyle`/`packaging`/`customer`/`engraving` or invent a new
+     tag), and `data-title`.
 3. Recommended aspect ratio for **product photos**: **1080×1920** (portrait 9:16, matches
    real photography exported from a phone). `.product-card__media` and the modal carousel
    render images at their natural width/height (no crop, no fixed frame), so any ratio
    displays in full — 1080×1920 is just the size product photos are expected to arrive in.
-   `.gallery-item` (lifestyle/packaging/customer/engraving shots in `#gallery`) is a separate,
-   fixed 4:5 cropped frame (`object-fit: cover`) — pre-crop those close to 4:5 so nothing
-   important sits near the edges.
+   `.gallery-strip__item` (lifestyle/packaging/customer/engraving shots in the `#gallery`
+   filmstrip) is a separate, fixed 3:4 cropped frame (`object-fit: cover`) — pre-crop those
+   close to 3:4 so nothing important sits near the edges.
 4. No build step — save and reload.
 
 ## Deploying
@@ -223,20 +225,32 @@ No build command needed. Push the whole folder to any static host:
 - **GitHub Pages**: enable Pages on the repo, serve from the root of the default branch.
 - Or just upload the folder to any static file host / CDN bucket.
 
-## Order flow — orders arrive by email via Web3Forms
+## Contact form — `#order` section, submissions arrive by email via Web3Forms
 
-`assets/js/app.js`'s `submitOrder(payload)` POSTs the order to
+`#order` (`index.html`) is a plain contact form, **not** a per-product order form — it only
+collects Họ Và Tên, Số Điện Thoại, Facebook/Zalo (optional), and a required free-text message
+(`#noteInput`). There is no product/color select, no engraving field, no quantity, no delivery
+address; a shopper mentions whatever they need (product, color, engraving name, address,
+quantity...) in that message field, same as messaging a shop directly on Zalo/Facebook.
+
+Two other spots on the page write into `#noteInput` for context, without overwriting anything
+the visitor already typed (`appendToContactNote()` in `app.js`):
+- The product-detail modal's "Đặt Hàng Ngay" button appends `"Sản phẩm quan tâm: <name> — Màu:
+  <color(s)>"`.
+- The hero engraving-preview tile's CTA appends `"Tên muốn khắc: <name>"`.
+
+`assets/js/app.js`'s `submitOrder(payload)` POSTs the message to
 [Web3Forms](https://web3forms.com) (free, 250 submissions/month), which emails it straight to
 whatever address you signed up with. If that request fails for any reason (bad/missing access
-key, network error, rate limit), it falls back to storing the order in `localStorage` under the
-key `tiemtibe_orders` and still shows the "Đặt Hàng Thành Công" success state — the customer
+key, network error, rate limit), it falls back to storing it in `localStorage` under the key
+`tiemtibe_orders` and still shows the "Gửi Liên Hệ Thành Công" success state — the customer
 never sees a failure either way, but **you should set up the access key** or you'll only ever
-get orders via the localStorage fallback (i.e., never, unless you manually inspect a customer's
-browser).
+get messages via the localStorage fallback (i.e., never, unless you manually inspect a
+customer's browser).
 
 **One-time setup (~1 minute, free, no card):**
 
-1. Go to [web3forms.com](https://web3forms.com) and sign up with the email you want orders
+1. Go to [web3forms.com](https://web3forms.com) and sign up with the email you want messages
    delivered to.
 2. Copy the access key it gives you.
 3. Open `assets/js/app.js`, find this line near the top:
@@ -244,7 +258,7 @@ browser).
    const WEB3FORMS_ACCESS_KEY = "YOUR_WEB3FORMS_ACCESS_KEY";
    ```
    and replace `"YOUR_WEB3FORMS_ACCESS_KEY"` with your real key.
-4. Save, reload, submit a test order — it should land in your inbox within seconds.
+4. Save, reload, submit a test message — it should land in your inbox within seconds.
 
 `submitOrder` is intentionally isolated from all other DOM code — it just takes a payload
 object and returns `{ ok, source }` (`source` is `"web3forms"` or `"localStorage"` depending on
@@ -257,19 +271,13 @@ labels, via Web3Forms):
   "customerName": "",
   "phone": "",
   "contact": "",
-  "address": "",
-  "productId": "",
-  "productLabel": "",
-  "color": "",
-  "engraving": "",
-  "quantity": 1,
   "note": ""
 }
 ```
 
-To inspect orders captured via the localStorage fallback (e.g. while `WEB3FORMS_ACCESS_KEY` is
-still the placeholder, or if a submission failed), open the browser console on `index.html` and
-run:
+To inspect messages captured via the localStorage fallback (e.g. while `WEB3FORMS_ACCESS_KEY`
+is still the placeholder, or if a submission failed), open the browser console on `index.html`
+and run:
 
 ```js
 JSON.parse(localStorage.getItem("tiemtibe_orders"))

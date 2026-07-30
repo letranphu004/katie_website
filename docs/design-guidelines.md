@@ -59,7 +59,9 @@ and gradient text — the palette's signature move.
   or `prefers-reduced-motion: reduce` leaves content static and visible rather than stuck
   hidden.
 - `.reveal` — single element fades/slides in on scroll. `.reveal-stagger` — direct
-  children stagger in (bento grid, timeline row, gallery masonry, product gallery).
+  children stagger in (bento grid, timeline row, product gallery). The photo gallery
+  filmstrip (`.gallery-strip`) uses a single `.reveal` on its wrapper instead, since its
+  items scroll horizontally out of the initial viewport.
 - Hero: floating blurred gradient blobs (`.hero__blob`, pure CSS `@keyframes`), a bouncing
   scroll cue, and a rotated marquee ribbon overlapping the hero's bottom edge.
 - Marquee (`.marquee`): pure CSS infinite loop, pauses on hover, disabled under reduced
@@ -77,8 +79,9 @@ and gradient text — the palette's signature move.
 
 - **Single page**, same anchor sections as before (`#san-pham`, `#gallery`, `#faq`,
   `#order`), but no longer stacked as uniform bordered boxes:
-  hero → marquee → bento "why choose us" → chip-filtered product gallery → horizontal
-  timeline → photo gallery → FAQ → order → footer.
+  hero → marquee → engraving-preview showcase (video + interactive tile) →
+  chip-filtered product gallery → horizontal timeline → photo filmstrip → FAQ → order →
+  footer.
 - Mobile-first Bootstrap grid; bento collapses to 2 columns (`md`) then 1 (`sm`).
 - Sticky navbar: translucent blush blur, pink-gradient wordmark, gradient-pill CTA.
 
@@ -109,11 +112,23 @@ and gradient text — the palette's signature move.
 - **Product detail modal:** carousel (full `images[]`) + color swatches + "Đặt Hàng Ngay"
   button only — no redundant name/description/price text block. `<h2>` title kept for
   accessibility only (visually hidden).
-- **Bento "why choose us":** one large accent tile + four smaller tiles (2 feature, 2
-  animated stat counters) in an asymmetric grid — replaces the old 3 equal bordered-circle
-  cards.
+- **Engraving-preview showcase** (replaces the old "why choose us" bento): two matched
+  tiles side by side — a looping video tile (`.bento__item--video`) and an interactive
+  live-preview tile (`.bento__item--preview`) where typing a name updates
+  `#heroPreviewText` and, on CTA click, appends "Tên muốn khắc: &lt;name&gt;" into the
+  contact form's message field (`appendToContactNote()`) — there's no engraving field on
+  `#order` to prefill directly anymore. Stat counters live inline inside the preview tile,
+  not as separate cards.
+- **Photo gallery** (`#gallery`): a horizontal, edge-to-edge filmstrip (`.gallery-strip`),
+  not a grid — smaller (168–200px) staggered cards (alternating `--offset-y` per
+  `nth-child`), scroll-snap, side arrow buttons, and click-and-drag scrolling for mouse
+  users (`initGalleryStrip()` in `app.js`). GLightbox still opens on click; a drag is
+  distinguished from a click so dragging doesn't also pop the lightbox.
 - **Timeline (How It Works):** 4 cards in a row (desktop) with a shared gradient progress
   line that fills as the section scrolls into view, instead of per-step circle-and-dashed
   connectors.
 - **FAQ:** Bootstrap Accordion, rounded items, open state gets the gradient-pink fill.
-- **Live order preview:** rounded blush-gradient frame, unchanged functionality.
+- **Contact form** (`#order`): name, phone, Facebook/Zalo, and a required free-text message
+  only — no address/product/color/engraving/quantity fields. Product interest and
+  engraving ideas from elsewhere on the page arrive here as text in the message field via
+  `appendToContactNote()`, not as structured form fields.
