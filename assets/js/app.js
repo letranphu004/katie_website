@@ -15,17 +15,12 @@ async function submitOrder(payload) {
       headers: { "Content-Type": "application/json", "Accept": "application/json" },
       body: JSON.stringify({
         access_key: WEB3FORMS_ACCESS_KEY,
-        subject: `Đơn hàng mới — Tiệm Tí Be (${payload.customerName || "Khách hàng"})`,
+        subject: `Yêu cầu liên hệ mới — Tiệm Tí Be (${payload.customerName || "Khách hàng"})`,
         from_name: "Tiệm Tí Be — Website",
         "Họ và tên": payload.customerName,
         "Số điện thoại": payload.phone,
         "Facebook / Zalo": payload.contact || "(không có)",
-        "Địa chỉ giao hàng": payload.address,
-        "Sản phẩm": payload.productLabel,
-        "Màu sắc": payload.color,
-        "Tên khắc": payload.engraving,
-        "Số lượng": payload.quantity,
-        "Ghi chú": payload.note || "(không có)"
+        "Nội dung": payload.note
       })
     });
     const result = await res.json();
@@ -65,6 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initProductGroups();
   initProductModal();
   initGallery();
+  initGalleryStrip();
   initOrderPage();
   initTestimonialCarousel();
   initBentoVideo();
@@ -100,12 +96,21 @@ function initHeroPreview() {
   if (cta) {
     cta.addEventListener("click", () => {
       const name = input.value.trim();
-      if (!name) return;
-      const orderEngravingInput = document.getElementById("engravingInput");
-      const orderPreviewText = document.getElementById("previewText");
-      if (orderEngravingInput) orderEngravingInput.value = name;
-      if (orderPreviewText) orderPreviewText.textContent = name;
+      if (name) appendToContactNote(`Tên muốn khắc: ${name}`);
     });
+  }
+}
+
+/* Carries context (a product name, an engraving idea) from elsewhere on the page into
+   the contact form's message field, without overwriting anything the visitor already
+   typed there themselves. */
+function appendToContactNote(line) {
+  const noteInput = document.getElementById("noteInput");
+  if (!noteInput) return;
+  if (!noteInput.value.trim()) {
+    noteInput.value = line;
+  } else if (!noteInput.value.includes(line)) {
+    noteInput.value = `${line}\n${noteInput.value}`;
   }
 }
 
@@ -427,11 +432,14 @@ function initProductModal() {
   orderBtn.addEventListener("click", () => {
     if (!currentProduct || orderInFlight) return;
     orderInFlight = true;
-    const productId = currentProduct.id;
+    const productName = currentProduct.name;
     const colorSelection = selectedParts ? selectedParts.map(({ label, colorName }) => ({ label, colorName })) : selectedColor;
     modalEl.addEventListener("hidden.bs.modal", () => {
       orderInFlight = false;
-      prefillOrderForm(productId, colorSelection);
+      const colorText = Array.isArray(colorSelection)
+        ? colorSelection.map(({ label, colorName }) => `${label}: ${colorName}`).join(", ")
+        : colorSelection;
+      appendToContactNote(`Sản phẩm quan tâm: ${productName}${colorText ? ` — Màu: ${colorText}` : ""}`);
       const orderSection = document.getElementById("order");
       if (!orderSection) return;
       const scrollToOrder = () => orderSection.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth" });
@@ -452,15 +460,15 @@ function initProductModal() {
 }
 
 /* ==========================================================================
-   Gallery — GLightbox
+   Gallery — GLightbox + horizontal drag-to-scroll filmstrip
    ========================================================================== */
 
 function initGallery() {
-  const gallery = document.querySelector(".gallery-masonry");
+  const gallery = document.getElementById("galleryStrip");
   if (!gallery || typeof GLightbox === "undefined") return;
 
   let lastFocusedTrigger = null;
-  gallery.querySelectorAll(".gallery-item").forEach((item) => {
+  gallery.querySelectorAll(".gallery-strip__item").forEach((item) => {
     item.addEventListener("click", () => { lastFocusedTrigger = item; });
   });
 
@@ -470,86 +478,67 @@ function initGallery() {
   });
 }
 
-/* ==========================================================================
-   Order — form, live preview, product/color cascade, submit
-   ========================================================================== */
+function initGalleryStrip() {
+  const strip = document.getElementById("galleryStrip");
+  if (!strip) return;
 
-function prefillOrderForm(productId, colorSelection) {
-  const productSelect = document.getElementById("productSelect");
-  const colorSelect = document.getElementById("colorSelect");
-  if (!productSelect || !colorSelect || typeof PRODUCTS === "undefined") return;
-  if (!PRODUCTS.some((p) => p.id === productId)) return;
+  const prevBtn = document.querySelector(".gallery-strip__nav--prev");
+  const nextBtn = document.querySelector(".gallery-strip__nav--next");
+  const scrollStep = () => strip.clientWidth * 0.6;
 
-  productSelect.value = productId;
-  productSelect.dispatchEvent(new Event("change"));
+  prevBtn?.addEventListener("click", () => {
+    strip.scrollBy({ left: -scrollStep(), behavior: prefersReducedMotion ? "auto" : "smooth" });
+  });
+  nextBtn?.addEventListener("click", () => {
+    strip.scrollBy({ left: scrollStep(), behavior: prefersReducedMotion ? "auto" : "smooth" });
+  });
 
-  if (Array.isArray(colorSelection)) {
-    colorSelection.forEach(({ label, colorName }) => {
-      const partSelect = document.querySelector(`.combo-color-select[data-part-label="${CSS.escape(label)}"]`);
-      if (partSelect && [...partSelect.options].some((o) => o.value === colorName)) {
-        partSelect.value = colorName;
-      }
-    });
-  } else if (colorSelection && [...colorSelect.options].some((o) => o.value === colorSelection)) {
-    colorSelect.value = colorSelection;
-  }
+  // Click-and-drag scrolling for mouse users (touch/trackpad already scroll natively).
+  let isDown = false;
+  let dragged = false;
+  let startX = 0;
+  let startScroll = 0;
+
+  strip.addEventListener("pointerdown", (e) => {
+    if (e.pointerType === "touch") return;
+    isDown = true;
+    dragged = false;
+    startX = e.clientX;
+    startScroll = strip.scrollLeft;
+    strip.setPointerCapture(e.pointerId);
+  });
+
+  strip.addEventListener("pointermove", (e) => {
+    if (!isDown) return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > 4) dragged = true;
+    strip.scrollLeft = startScroll - dx;
+  });
+
+  const endDrag = () => { isDown = false; };
+  strip.addEventListener("pointerup", endDrag);
+  strip.addEventListener("pointerleave", endDrag);
+
+  // A drag that just ended shouldn't also open the lightbox as a click.
+  strip.addEventListener("click", (e) => {
+    if (dragged) {
+      e.preventDefault();
+      e.stopPropagation();
+      dragged = false;
+    }
+  }, true);
 }
+
+/* ==========================================================================
+   Contact form — validation, submit. Product interest (from the product modal)
+   and engraving ideas (from the hero preview) arrive here via appendToContactNote().
+   ========================================================================== */
 
 function initOrderPage() {
   const form = document.getElementById("orderForm");
-  if (!form || typeof PRODUCTS === "undefined") return;
+  if (!form) return;
 
-  const productSelect = document.getElementById("productSelect");
-  const colorSelect = document.getElementById("colorSelect");
-  const colorFieldWrap = document.getElementById("colorFieldWrap");
-  const comboColorFields = document.getElementById("comboColorFields");
-  const engravingInput = document.getElementById("engravingInput");
-  const previewText = document.getElementById("previewText");
   const successPanel = document.getElementById("orderSuccess");
-
-  PRODUCTS.forEach((p) => {
-    const opt = document.createElement("option");
-    opt.value = p.id;
-    opt.textContent = `${p.name} — ${formatVND(p.priceVND)}`;
-    productSelect.appendChild(opt);
-  });
-
-  function populateColors(productId) {
-    const product = PRODUCTS.find((p) => p.id === productId);
-    colorSelect.innerHTML = "";
-    comboColorFields.innerHTML = "";
-
-    if (product && product.parts) {
-      colorFieldWrap.classList.add("d-none");
-      comboColorFields.classList.remove("d-none");
-      comboColorFields.innerHTML = product.parts.map((part, i) => `
-        <div class="col-sm-6 mb-3">
-          <label for="comboColor-${i}">Màu ${escapeHtml(part.label)}</label>
-          <select class="form-select combo-color-select" id="comboColor-${i}" data-part-label="${escapeHtml(part.label)}">
-            ${part.colors.map((c) => `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`).join("")}
-          </select>
-        </div>`).join("");
-      return;
-    }
-
-    comboColorFields.classList.add("d-none");
-    colorFieldWrap.classList.remove("d-none");
-    if (!product) return;
-    product.colors.forEach((c) => {
-      const opt = document.createElement("option");
-      opt.value = c.name;
-      opt.textContent = c.name;
-      colorSelect.appendChild(opt);
-    });
-  }
-
-  productSelect.addEventListener("change", () => populateColors(productSelect.value));
-
-  engravingInput.addEventListener("input", () => {
-    previewText.textContent = engravingInput.value.trim() || "kl87";
-  });
-
-  populateColors(productSelect.value);
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -558,35 +547,23 @@ function initOrderPage() {
       return;
     }
 
-    const selectedProduct = PRODUCTS.find((p) => p.id === productSelect.value);
-    const color = selectedProduct && selectedProduct.parts
-      ? [...comboColorFields.querySelectorAll(".combo-color-select")]
-        .map((s) => `${s.dataset.partLabel}: ${s.value}`).join(", ")
-      : colorSelect.value;
-
     const payload = {
       customerName: document.getElementById("customerNameInput").value.trim(),
       phone: document.getElementById("phoneInput").value.trim(),
       contact: document.getElementById("contactInput").value.trim(),
-      address: document.getElementById("addressInput").value.trim(),
-      productId: productSelect.value,
-      productLabel: productSelect.selectedOptions[0]?.textContent || productSelect.value,
-      color: color,
-      engraving: engravingInput.value.trim(),
-      quantity: Number(document.getElementById("quantityInput").value) || 1,
       note: document.getElementById("noteInput").value.trim()
     };
 
     const submitBtn = form.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
-    submitBtn.textContent = "Đang gửi đơn...";
+    submitBtn.textContent = "Đang gửi...";
 
     const result = await submitOrder(payload);
 
     if (!result.ok) {
       submitBtn.disabled = false;
-      submitBtn.textContent = "Đặt Hàng Ngay";
-      alert("Rất tiếc, có lỗi xảy ra khi gửi đơn. Vui lòng thử lại hoặc liên hệ trực tiếp qua Zalo/Facebook.");
+      submitBtn.textContent = "Gửi Cho Mình Nha!";
+      alert("Ui, có lỗi xíu khi gửi rồi 🥲 Bạn thử lại giúp mình hoặc nhắn trực tiếp qua Zalo/Facebook nha.");
       return;
     }
 
@@ -600,12 +577,10 @@ function initOrderPage() {
     resetBtn.addEventListener("click", () => {
       form.reset();
       form.classList.remove("was-validated", "d-none");
-      previewText.textContent = "kl87";
-      populateColors(productSelect.value);
       successPanel.classList.remove("is-visible");
       const submitBtn = form.querySelector('button[type="submit"]');
       submitBtn.disabled = false;
-      submitBtn.textContent = "Đặt Hàng Ngay";
+      submitBtn.textContent = "Gửi Cho Mình Nha!";
     });
   }
 }

@@ -5,6 +5,7 @@
    Reference: Korean fashion e-commerce leaders (Musinsa, Style Nanda, Zigzag,
    W Concept, 29CM) — bold color, chip-filtered catalogs, marquee bands,
    scroll-driven motion, soft-rounded "sheet" sections instead of hard boxes.
+   Palette is intentionally limited to 3 colors: dark ink, pastel pink, white.
    ========================================================================== */
 
 @font-face {
@@ -16,35 +17,35 @@
 }
 
 :root {
-  --color-bg: #FFF8FA;
+  --color-bg: #FFFFFF;
   --color-surface: #FFFFFF;
-  --color-surface-muted: #FFE9F2;
-  --color-surface-muted-2: #FFD6E8;
+  --color-surface-muted: #FFB8DD;
+  --color-surface-muted-2: #FFB8DD;
   --color-white: #FFFFFF;
-  --color-ink: #2A1420;
-  --color-ink-soft: #8A6072;
-  --color-accent: #FF3D96;
-  --color-accent-deep: #C4166B;
+  --color-ink: #8B4444;
+  --color-ink-soft: #8B4444;
+  --color-accent: #8B4444;
+  --color-accent-deep: #8B4444;
   --color-accent-soft: #FFB8DD;
-  --color-border: #FFD6E8;
-  --color-border-strong: #FF9BC8;
+  --color-border: #FFB8DD;
+  --color-border-strong: #8B4444;
 
-  --gradient-accent: linear-gradient(135deg, #FF6FB0 0%, #FF3D96 55%, #C4166B 100%);
-  --gradient-soft: linear-gradient(180deg, #FFF0F7 0%, #FFE0EE 100%);
+  --color-button: #FFB8DD;
+  --color-button-hover: #8B4444;
 
   --radius: 22px;
   --radius-sm: 12px;
   --radius-pill: 999px;
 
-  --font-heading: "Be Vietnam Pro", sans-serif;
-  --font-body: "Be Vietnam Pro", sans-serif;
+  --font-heading: "Poppins", "Be Vietnam Pro", sans-serif;
+  --font-body: "Poppins", "Be Vietnam Pro", sans-serif;
   --font-engrave: "Cooper Std Black Italic", "Fredoka", "Be Vietnam Pro", sans-serif;
 
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --transition-base: 250ms var(--ease);
 
-  --shadow-soft: 0 24px 48px -20px rgba(255, 61, 150, 0.35);
-  --shadow-pop: 0 12px 28px -12px rgba(196, 22, 107, 0.45);
+  --shadow-soft: 0 24px 48px -20px rgba(139, 68, 68, 0.35);
+  --shadow-pop: 0 12px 28px -12px rgba(139, 68, 68, 0.45);
 }
 
 /* ==========================================================================
@@ -57,6 +58,7 @@ html {
 
 body {
   font-family: var(--font-body);
+  font-weight: 600;
   color: var(--color-ink);
   background-color: var(--color-bg);
   overflow-x: hidden;
@@ -89,7 +91,7 @@ h4,
 
 .text-ink:hover,
 .text-ink:focus-visible {
-  color: var(--color-accent) !important;
+  color: var(--color-accent-soft) !important;
 }
 
 .bg-blush {
@@ -97,7 +99,7 @@ h4,
 }
 
 .bg-pink-soft {
-  background-color: var(--color-surface-muted) !important;
+  background-color: #FFE2E2;
 }
 
 .border-gold {
@@ -176,7 +178,7 @@ textarea:focus-visible,
 }
 
 .navbar-glass {
-  background: rgba(255, 248, 250, 0.82);
+  background: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--color-border);
@@ -184,14 +186,11 @@ textarea:focus-visible,
 }
 
 .navbar-glass .navbar-brand {
-  background: var(--gradient-accent);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--color-border-strong);
 }
 
 .navbar-glass.is-scrolled {
-  background: rgba(255, 248, 250, 0.96);
+  background: rgba(255, 255, 255, 0.96);
   border-bottom-color: var(--color-border-strong);
   box-shadow: var(--shadow-soft);
   padding-top: 0.4rem;
@@ -199,7 +198,8 @@ textarea:focus-visible,
 }
 
 /* ==========================================================================
-   Buttons
+   Buttons — rest state is pastel bg + dark text; hover/active swaps to dark
+   bg + white text so contrast stays strong within the 3-color palette.
    ========================================================================== */
 
 .btn-boutique {
@@ -210,21 +210,20 @@ textarea:focus-visible,
   letter-spacing: 0.06em;
   border-radius: var(--radius-pill);
   padding: 0.9rem 2.1rem;
-  background: var(--gradient-accent);
-  background-size: 160% 160%;
-  color: var(--color-white);
+  background: var(--color-button);
+  color: var(--color-ink);
   border: none;
   box-shadow: var(--shadow-pop);
-  transition: background-position var(--transition-base), transform var(--transition-base), box-shadow var(--transition-base);
+  transition: background-color var(--transition-base), color var(--transition-base), transform var(--transition-base), box-shadow var(--transition-base);
   display: inline-block;
 }
 
 .btn-boutique:hover,
 .btn-boutique:focus-visible {
-  background-position: 100% 0;
+  background: var(--color-button-hover);
   color: var(--color-white);
   transform: translateY(-3px);
-  box-shadow: 0 18px 36px -12px rgba(196, 22, 107, 0.55);
+  box-shadow: 0 18px 36px -12px rgba(139, 68, 68, 0.55);
 }
 
 .btn-boutique-outline {
@@ -236,14 +235,14 @@ textarea:focus-visible,
   border-radius: var(--radius-pill);
   padding: 0.85rem 2rem;
   background-color: transparent;
-  color: var(--color-accent-deep);
-  border: 1.5px solid var(--color-accent);
+  color: var(--color-ink);
+  border: 1.5px solid var(--color-button);
   transition: background-color var(--transition-base), color var(--transition-base), transform var(--transition-base);
 }
 
 .btn-boutique-outline:hover,
 .btn-boutique-outline:focus-visible {
-  background: var(--gradient-accent);
+  background: var(--color-button-hover);
   color: var(--color-white);
   border-color: transparent;
   transform: translateY(-3px);
@@ -265,11 +264,11 @@ textarea:focus-visible,
 
 .hero {
   position: relative;
-  min-height: 96vh;
+  height: 90vh;
   display: flex;
   align-items: center;
   overflow: hidden;
-  background: var(--gradient-soft);
+  background: #f7dddd;
   padding-bottom: 3rem;
 }
 
@@ -281,16 +280,14 @@ textarea:focus-visible,
 .hero-title {
   font-size: clamp(2.4rem, 6vw, 4.5rem);
   line-height: 1.05;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: -0.02em;
   overflow-wrap: break-word;
+  color: var(--color-border-strong);
 }
 
 .hero-title .text-accent-gradient {
-  background: var(--gradient-accent);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--color-border-strong);
 }
 
 .hero-subtitle {
@@ -304,7 +301,7 @@ textarea:focus-visible,
   filter: blur(4px);
   opacity: 0.55;
   z-index: 1;
-  background: var(--gradient-accent);
+  background: var(--color-white);
   animation: blob-float 14s ease-in-out infinite;
 }
 
@@ -321,7 +318,7 @@ textarea:focus-visible,
   height: 260px;
   bottom: -60px;
   right: -60px;
-  background: linear-gradient(135deg, #FFD6E8, #FF9BC8);
+  background: var(--color-white);
   animation-delay: -5s;
 }
 
@@ -330,7 +327,7 @@ textarea:focus-visible,
   height: 160px;
   top: 30%;
   right: 12%;
-  background: linear-gradient(135deg, #FFF0F7, #FF9BC8);
+  background: var(--color-white);
   animation-delay: -9s;
 }
 
@@ -386,7 +383,7 @@ textarea:focus-visible,
   padding: 0.9rem 0;
   transform: rotate(-1.2deg);
   margin: -2.25rem 0 1.5rem;
-  box-shadow: 0 12px 30px -10px rgba(42, 20, 32, 0.4);
+  box-shadow: 0 12px 30px -10px rgba(139, 68, 68, 0.4);
 }
 
 .marquee__track {
@@ -413,7 +410,7 @@ textarea:focus-visible,
 }
 
 .marquee__item i {
-  color: var(--color-accent);
+  color: var(--color-accent-soft);
 }
 
 @keyframes marquee-scroll {
@@ -472,7 +469,6 @@ textarea:focus-visible,
 .bento__item--accent {
   background-size: cover;
   background-position: center;
-  /* background: var(--gradient-accent); */
   color: var(--color-white);
   border: none;
 }
@@ -490,7 +486,7 @@ textarea:focus-visible,
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: linear-gradient(180deg, rgba(196, 22, 107, 0.15) 0%, rgba(42, 20, 32, 0.6) 100%);
+  background: rgba(139, 68, 68, 0.45);
 }
 
 .bento__item--video .bento__icon,
@@ -498,7 +494,7 @@ textarea:focus-visible,
 .bento__item--video .bento__text {
   position: relative;
   z-index: 2;
-  color: white;
+  color: var(--color-white);
 }
 
 .bento__item--lg {
@@ -659,7 +655,7 @@ textarea:focus-visible,
 }
 
 .chip.is-active {
-  background: var(--gradient-accent);
+  background: var(--color-button-hover);
   color: var(--color-white);
   border-color: transparent;
   box-shadow: var(--shadow-pop);
@@ -716,7 +712,7 @@ textarea:focus-visible,
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--color-white);
-  background: var(--gradient-accent);
+  background: var(--color-ink);
   border-radius: var(--radius-pill);
   padding: 0.35rem 0.7rem;
   animation: badge-pulse 2.4s ease-in-out infinite;
@@ -758,7 +754,7 @@ textarea:focus-visible,
   height: 28px;
   border-radius: 50%;
   border: 2px solid var(--color-white);
-  box-shadow: 0 0 0 1.5px var(--color-border-strong);
+  box-shadow: 0 0 0 1.5px var(--color-button);
   cursor: pointer;
   padding: 0;
   transition: transform var(--transition-base), box-shadow var(--transition-base);
@@ -769,7 +765,7 @@ textarea:focus-visible,
 }
 
 .color-swatch.is-selected {
-  box-shadow: 0 0 0 2.5px var(--color-accent-deep);
+  box-shadow: 0 0 0 2.5px var(--color-border-strong);
 }
 
 /* ==========================================================================
@@ -801,7 +797,7 @@ textarea:focus-visible,
   inset: 0;
   width: 0%;
   border-radius: var(--radius-pill);
-  background: var(--gradient-accent);
+  background: var(--color-ink);
 }
 
 .timeline-row {
@@ -842,7 +838,7 @@ textarea:focus-visible,
   font-family: var(--font-heading);
   font-weight: 800;
   margin: 0 auto 1rem;
-  background: var(--gradient-accent);
+  background: var(--color-ink);
   box-shadow: var(--shadow-pop);
 }
 
@@ -859,55 +855,125 @@ textarea:focus-visible,
 }
 
 /* ==========================================================================
-   Gallery (Grid)
+   Gallery — elegant horizontal filmstrip (replaces the uniform grid). Smaller,
+   staggered cards that bleed edge-to-edge; drag or use the side arrows to browse.
    ========================================================================== */
 
-.gallery-masonry {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
+.gallery-strip-wrap {
+  position: relative;
 }
 
-@media (min-width: 576px) {
-  .gallery-masonry {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.gallery-strip {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  cursor: grab;
+  padding: 2rem 8vw 3rem;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-@media (min-width: 992px) {
-  .gallery-masonry {
-    grid-template-columns: repeat(3, 1fr);
-  }
+.gallery-strip:active {
+  cursor: grabbing;
 }
 
-.gallery-item {
-  display: block;
-  aspect-ratio: 4 / 5;
-  border-radius: var(--radius);
+.gallery-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.gallery-strip__item {
+  --offset-y: 0px;
+  flex: 0 0 auto;
+  width: 168px;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radius-sm);
   overflow: hidden;
   position: relative;
   background: var(--color-surface-muted);
   border: 1px solid var(--color-border);
+  scroll-snap-align: center;
+  transform: translateY(var(--offset-y));
   transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
 
-.gallery-item:hover,
-.gallery-item:focus-visible {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-soft);
+@media (min-width: 576px) {
+  .gallery-strip__item {
+    width: 200px;
+  }
 }
 
-.gallery-item img {
+.gallery-strip__item:nth-child(even) {
+  --offset-y: 1.5rem;
+}
+
+.gallery-strip__item:nth-child(3n) {
+  --offset-y: -1.25rem;
+}
+
+.gallery-strip__item:hover,
+.gallery-strip__item:focus-visible {
+  transform: translateY(calc(var(--offset-y) - 10px));
+  box-shadow: var(--shadow-soft);
+  border-color: var(--color-border-strong);
+  z-index: 2;
+}
+
+.gallery-strip__item img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  pointer-events: none;
   transition: transform 450ms var(--ease);
 }
 
-.gallery-item:hover img,
-.gallery-item:focus-visible img {
+.gallery-strip__item:hover img,
+.gallery-strip__item:focus-visible img {
   transform: scale(1.08);
+}
+
+.gallery-strip__nav {
+  position: absolute;
+  top: 45%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-accent);
+  color: var(--color-accent-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  box-shadow: var(--shadow-soft);
+  transition: background-color var(--transition-base), color var(--transition-base), transform var(--transition-base);
+}
+
+.gallery-strip__nav:hover,
+.gallery-strip__nav:focus-visible {
+  background: var(--color-ink);
+  color: var(--color-white);
+}
+
+.gallery-strip__nav--prev {
+  left: 0.5rem;
+}
+
+.gallery-strip__nav--next {
+  right: 0.5rem;
+}
+
+@media (max-width: 575.98px) {
+  .gallery-strip__nav {
+    display: none;
+  }
 }
 
 /* ==========================================================================
@@ -930,7 +996,7 @@ textarea:focus-visible,
 }
 
 .accordion-boutique .accordion-button:not(.collapsed) {
-  background: var(--gradient-accent);
+  background: var(--color-ink);
   color: var(--color-white);
   box-shadow: none;
 }
@@ -977,7 +1043,7 @@ textarea:focus-visible,
   bottom: auto;
   border-radius: 50%;
   transform: translateY(-50%);
-  background: var(--gradient-accent);
+  background: var(--color-ink);
   opacity: 0.9;
 }
 
@@ -1009,27 +1075,13 @@ textarea:focus-visible,
 .order-form .form-control:focus,
 .order-form .form-select:focus {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 0.2rem rgba(255, 61, 150, 0.15);
+  box-shadow: 0 0 0 0.2rem rgba(139, 68, 68, 0.15);
 }
 
 .order-form label {
   font-weight: 700;
   font-size: 0.9rem;
   margin-bottom: 0.35rem;
-}
-
-.clip-preview {
-  position: relative;
-  width: 100%;
-  max-width: 320px;
-  margin-inline: auto;
-  aspect-ratio: 1 / 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--gradient-soft);
-  border-radius: var(--radius);
-  border: 1px solid var(--color-border);
 }
 
 .clip-shape {
@@ -1045,7 +1097,7 @@ textarea:focus-visible,
 
 .clip-shape__line {
   height: 2px;
-  background: var(--gradient-accent);
+  background: var(--color-ink);
   margin: 0.4rem auto;
   width: 80%;
   border-radius: var(--radius-pill);
@@ -1071,7 +1123,7 @@ textarea:focus-visible,
   height: 84px;
   border-radius: 50%;
   color: var(--color-white);
-  background: var(--gradient-accent);
+  background: var(--color-ink);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1090,7 +1142,7 @@ textarea:focus-visible,
   left: 0;
   height: 3px;
   width: 0%;
-  background: var(--gradient-accent);
+  background: var(--color-ink);
   z-index: 1100;
 }
 
@@ -1118,7 +1170,7 @@ textarea:focus-visible,
 
 #backToTop:hover {
   transform: translateY(-4px);
-  background: var(--gradient-accent);
+  background: var(--color-ink);
   color: var(--color-white);
 }
 
@@ -1153,27 +1205,27 @@ textarea:focus-visible,
 
 .quick-contact-btn:hover,
 .quick-contact-btn:focus-visible {
-  background: var(--gradient-accent);
+  background: var(--color-ink);
   color: var(--color-white);
   transform: translateY(-4px) scale(1.05);
 }
 
 .quick-contact-btn--zalo {
-  color: #0068FF;
-  border-color: #0068FF;
+  color: var(--color-accent-deep);
+  border-color: var(--color-accent-deep);
 }
 
 .quick-contact-btn--zalo:hover,
 .quick-contact-btn--zalo:focus-visible {
-  background: #0068FF;
+  background: var(--color-ink);
   color: var(--color-white);
 }
 
 #floatingOrderBtn {
   border-radius: var(--radius-pill);
   padding: 0.9rem 1.5rem;
-  background: var(--gradient-accent);
-  color: var(--color-white);
+  background: var(--color-button);
+  color: var(--color-ink);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -1183,11 +1235,12 @@ textarea:focus-visible,
   gap: 0.5rem;
   flex-shrink: 0;
   box-shadow: var(--shadow-pop);
-  transition: transform var(--transition-base);
+  transition: transform var(--transition-base), background-color var(--transition-base), color var(--transition-base);
 }
 
 #floatingOrderBtn:hover {
   transform: translateY(-4px);
+  background: var(--color-button-hover);
   color: var(--color-white);
 }
 
@@ -1221,8 +1274,8 @@ footer.bg-pink-soft {
   .bento__item,
   .product-card,
   .product-card__media img,
-  .gallery-item,
-  .gallery-item img,
+  .gallery-strip__item,
+  .gallery-strip__item img,
   .timeline-step,
   #backToTop,
   #floatingOrderBtn,

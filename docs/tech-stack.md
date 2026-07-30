@@ -47,7 +47,7 @@ AOS was dropped (2026-07-29) in favor of GSAP + ScrollTrigger — see `docs/desi
 
 ## Page Structure
 
-One page, sections reached by scroll/anchor: hero → marquee → why-choose-us (bento) → `#san-pham` (single chip-filtered product image gallery, not per-group boxed sections) → how-it-works (timeline) → testimonials → `#gallery` → `#faq` → `#order`. Header is just brand + a single "Đặt Hàng" CTA (`href="#order"`) — no tab menu. Product cards render image-only (no name/price text — already baked into the source images) and open a shared `#productModal` (Bootstrap Modal + Carousel) on click; its "Đặt Hàng Ngay" button pre-fills `#order`'s form (`prefillOrderForm()` in `app.js`) and smooth-scrolls down, replacing the old `order.html?product=&color=` query-param handoff.
+One page, sections reached by scroll/anchor: hero → marquee → engraving-preview showcase (video + interactive tile) → `#san-pham` (single chip-filtered product image gallery, not per-group boxed sections) → how-it-works (timeline) → testimonials → `#gallery` (photo filmstrip) → `#faq` → `#order`. Header is just brand + a single "Đặt Hàng" CTA (`href="#order"`) — no tab menu. Product cards render image-only (no name/price text — already baked into the source images) and open a shared `#productModal` (Bootstrap Modal + Carousel) on click; its "Đặt Hàng Ngay" button appends the product name + chosen color(s) into `#order`'s contact-form message field (`appendToContactNote()` in `app.js`) and smooth-scrolls down. `#order` is a plain contact form (name, phone, Facebook/Zalo, message) — see `docs/README.md`'s "Contact form" section for why the old product/color/engraving/quantity/address fields were dropped.
 
 ## Market / Localization
 
@@ -69,4 +69,4 @@ User will supply real photography later. Build uses correctly-sized, clearly-nam
 
 ## Backend
 
-No backend in this phase. `app.js` posts to `/api/order`; on network/fetch failure, falls back to `localStorage` (key: `tiemtibe_orders`) and still shows "Đặt hàng thành công" (Order Successful). API functions isolated in `app.js` so a future Strapi/Laravel backend is a drop-in swap.
+No backend in this phase. `#order`'s contact form (`app.js`'s `submitOrder()`) posts to Web3Forms; on network/fetch failure, falls back to `localStorage` (key: `tiemtibe_orders`) and still shows "Gửi Liên Hệ Thành Công" (Contact Sent Successfully). API function isolated in `app.js` so a future Strapi/Laravel backend is a drop-in swap. See `docs/README.md`'s "Contact form" section for the payload shape and Web3Forms setup.
