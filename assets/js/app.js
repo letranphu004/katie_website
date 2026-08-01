@@ -110,7 +110,7 @@ function appendToContactNote(line) {
   if (!noteInput.value.trim()) {
     noteInput.value = line;
   } else if (!noteInput.value.includes(line)) {
-    noteInput.value = `${line}\n${noteInput.value}`;
+    noteInput.value = `${line}\n\n${noteInput.value}`;
   }
 }
 
@@ -266,7 +266,7 @@ function initProductGroups() {
   container.innerHTML = PRODUCTS.map((p) => renderProductCard(p)).join("");
 
   if (!chipsContainer) return;
-  const chips = [{ id: "all", label: "Tất Cả" }, ...PRODUCT_GROUPS.map((g) => ({ id: g.id, label: g.label }))];
+  const chips = [{ id: "all", label: "ALL" }, ...PRODUCT_GROUPS.map((g) => ({ id: g.id, label: g.label }))];
   chipsContainer.innerHTML = chips.map((c, i) => `
     <button type="button" class="chip${i === 0 ? " is-active" : ""}" data-filter="${escapeHtml(c.id)}">${escapeHtml(c.label)}</button>`).join("");
 
@@ -330,6 +330,14 @@ function filterProducts(groupId) {
    Product detail modal — carousel + color pick + order handoff
    ========================================================================== */
 
+/* Colors with a photo (`image`) render that photo inside the swatch so the shopper can
+   see actual texture/pattern; colors without one fall back to a flat `hex` fill. */
+function colorSwatchStyle(color) {
+  return color.image
+    ? `background-image:url(${escapeHtml(color.image)})`
+    : `background-color:${escapeHtml(color.hex)}`;
+}
+
 function initProductModal() {
   const groupsContainer = document.getElementById("productGroups");
   const modalEl = document.getElementById("productModal");
@@ -342,6 +350,9 @@ function initProductModal() {
   const swatchesEl = document.getElementById("productModalSwatches");
   const colorLabel = document.getElementById("productModalColorLabel");
   const colorNameEl = document.getElementById("productModalColorName");
+  const colorDescEl = document.getElementById("productModalColorDesc");
+  const descVisibleEl = document.getElementById("productModalDescVisible");
+  const introEl = document.getElementById("productModalIntro");
   const orderBtn = document.getElementById("productModalOrderBtn");
   const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
 
@@ -360,6 +371,18 @@ function initProductModal() {
     if (modalDesc) {
       modalDesc.textContent = `${product.description} ${product.material} — ${formatVND(product.priceVND)}`;
     }
+    if (introEl) {
+      introEl.textContent = product.intro || "";
+      introEl.classList.toggle("d-none", !product.intro);
+    }
+    if (descVisibleEl) {
+      const infoLines = [
+        product.material ? `Chất liệu: ${product.material}` : null,
+        product.size ? `Kích thước: ${product.size}` : null,
+        product.engraveLength ? `Gợi ý số ký tự: ${product.engraveLength}` : null
+      ].filter(Boolean);
+      descVisibleEl.innerHTML = infoLines.map((line) => escapeHtml(line)).join("<br>");
+    }
 
     carouselInner.innerHTML = product.images.map((img, i) => `
       <div class="carousel-item${i === 0 ? " active" : ""}">
@@ -371,13 +394,14 @@ function initProductModal() {
       selectedColor = null;
       selectedParts = product.parts.map((part) => ({ label: part.label, colorName: part.colors[0].name }));
       colorLabel.classList.add("d-none");
+      if (colorDescEl) colorDescEl.textContent = "";
       swatchesEl.innerHTML = product.parts.map((part, pi) => `
         <div class="combo-part-swatches mb-3">
           <p class="small fw-semibold mb-2">${escapeHtml(part.label)}${part.qty > 1 ? ` (x${part.qty})` : ""}:
             <span class="fw-normal text-secondary" data-part-color-name="${pi}">${escapeHtml(part.colors[0].name)}</span></p>
           <div class="d-flex gap-2 flex-wrap">
             ${part.colors.map((c, ci) => `
-              <button type="button" class="color-swatch${ci === 0 ? " is-selected" : ""}" style="background-color:${escapeHtml(c.hex)}"
+              <button type="button" class="color-swatch${ci === 0 ? " is-selected" : ""}" style="${colorSwatchStyle(c)}"
                 data-part-index="${pi}" data-color-name="${escapeHtml(c.name)}"
                 aria-label="Chọn màu ${escapeHtml(c.name)} cho ${escapeHtml(part.label)}"></button>`).join("")}
           </div>
@@ -387,9 +411,11 @@ function initProductModal() {
       selectedColor = product.colors[0].name;
       colorLabel.classList.remove("d-none");
       if (colorNameEl) colorNameEl.textContent = product.colors[0].name;
+      if (colorDescEl) colorDescEl.textContent = product.colors[0].description || "";
       swatchesEl.innerHTML = `<div class="d-flex gap-2 flex-wrap">${product.colors.map((c, i) => `
-        <button type="button" class="color-swatch${i === 0 ? " is-selected" : ""}" style="background-color:${escapeHtml(c.hex)}"
-          data-color-name="${escapeHtml(c.name)}" aria-label="Chọn màu ${escapeHtml(c.name)}"></button>`).join("")}</div>`;
+        <button type="button" class="color-swatch${i === 0 ? " is-selected" : ""}" style="${colorSwatchStyle(c)}"
+          data-color-name="${escapeHtml(c.name)}" data-color-description="${escapeHtml(c.description || "")}"
+          aria-label="Chọn màu ${escapeHtml(c.name)}"></button>`).join("")}</div>`;
     }
 
     modal.show();
@@ -426,6 +452,7 @@ function initProductModal() {
       swatch.classList.add("is-selected");
       selectedColor = swatch.dataset.colorName;
       if (colorNameEl) colorNameEl.textContent = swatch.dataset.colorName;
+      if (colorDescEl) colorDescEl.textContent = swatch.dataset.colorDescription || "";
     }
   });
 
@@ -436,10 +463,10 @@ function initProductModal() {
     const colorSelection = selectedParts ? selectedParts.map(({ label, colorName }) => ({ label, colorName })) : selectedColor;
     modalEl.addEventListener("hidden.bs.modal", () => {
       orderInFlight = false;
-      const colorText = Array.isArray(colorSelection)
-        ? colorSelection.map(({ label, colorName }) => `${label}: ${colorName}`).join(", ")
-        : colorSelection;
-      appendToContactNote(`Sản phẩm quan tâm: ${productName}${colorText ? ` — Màu: ${colorText}` : ""}`);
+      const productLine = Array.isArray(colorSelection)
+        ? `SẢN PHẨM QUAN TÂM: ${productName.toUpperCase()}\n${colorSelection.map(({ label, colorName }) => `  - ${label}: ${colorName}`).join("\n")}`
+        : `Sản phẩm quan tâm: ${productName}${colorSelection ? ` — Màu: ${colorSelection}` : ""}`;
+      appendToContactNote(productLine);
       const orderSection = document.getElementById("order");
       if (!orderSection) return;
       const scrollToOrder = () => orderSection.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth" });

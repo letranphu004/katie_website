@@ -264,12 +264,11 @@ textarea:focus-visible,
 
 .hero {
   position: relative;
-  height: 90vh;
+  height: 60vh;
   display: flex;
   align-items: center;
   overflow: hidden;
   background: #f7dddd;
-  padding-bottom: 3rem;
 }
 
 .hero-content {
@@ -293,6 +292,49 @@ textarea:focus-visible,
 .hero-subtitle {
   font-size: clamp(1.05rem, 2vw, 1.3rem);
   color: var(--color-ink-soft);
+}
+
+/* Plays on every page load (plain CSS, not scroll-triggered) — the hero is already in
+   view on load, so a scroll-reveal wouldn't have anything to trigger off of. */
+.hero-intro {
+  opacity: 0;
+  animation-duration: 3.2s;
+  animation-timing-function: var(--ease);
+  animation-fill-mode: forwards;
+}
+
+.hero-intro--eyebrow {
+  animation-name: hero-intro-in-left;
+  animation-delay: 0.4s;
+}
+
+.hero-intro--title {
+  animation-name: hero-intro-in-right;
+  animation-delay: 0.9s;
+}
+
+@keyframes hero-intro-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-70px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes hero-intro-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(70px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .hero__blob {
@@ -591,7 +633,7 @@ textarea:focus-visible,
 }
 
 .bento__preview-hint {
-  font-size: 0.15rem;
+  font-size: 5.15rem;
   color: var(--color-ink-soft);
   text-align: center;
   margin: 0 0 1rem;
@@ -750,13 +792,16 @@ textarea:focus-visible,
 }
 
 .color-swatch {
-  width: 28px;
-  height: 28px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   border: 2px solid var(--color-white);
   box-shadow: 0 0 0 1.5px var(--color-button);
   cursor: pointer;
   padding: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
 
@@ -1266,6 +1311,12 @@ footer.bg-pink-soft {
   .marquee__track,
   .product-card__tag {
     animation: none !important;
+  }
+
+  .hero-intro {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 
   .hover-lift,
