@@ -67,7 +67,39 @@ document.addEventListener("DOMContentLoaded", () => {
   initHeroPreview();
   initMotion();
   initMagnetic();
+  initFlipTicker();
 });
+
+/* Flip-board ticker (replaces the old scrolling marquee): cycles one phrase
+   at a time. The outgoing phrase flips away first, then — after a short
+   beat — the next one flips into place, so the swap reads as two distinct
+   motions instead of a blurry crossfade. Under reduced motion, the first
+   phrase is just shown statically instead of cycling. */
+function initFlipTicker() {
+  const ticker = document.getElementById("flipTicker");
+  if (!ticker) return;
+  const items = [...ticker.querySelectorAll(".flip-ticker__item")];
+  if (!items.length) return;
+
+  let current = items.findIndex((item) => item.classList.contains("is-active"));
+  if (current === -1) {
+    current = 0;
+    items[0].classList.add("is-active");
+  }
+
+  if (prefersReducedMotion || items.length < 2) return;
+
+  setInterval(() => {
+    const next = (current + 1) % items.length;
+    const leaving = items[current];
+    const incoming = items[next];
+    leaving.classList.remove("is-active");
+    leaving.classList.add("is-leaving");
+    setTimeout(() => leaving.classList.remove("is-leaving"), 550);
+    setTimeout(() => incoming.classList.add("is-active"), 200);
+    current = next;
+  }, 2600);
+}
 
 function initTestimonialCarousel() {
   const el = document.getElementById("testimonialCarousel");
