@@ -183,6 +183,19 @@ textarea:focus-visible,
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--color-border);
   transition: box-shadow var(--transition-base), padding var(--transition-base), border-color var(--transition-base), background-color var(--transition-base);
+  animation: navbar-intro-in 0.8s var(--ease) both;
+}
+
+@keyframes navbar-intro-in {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .navbar-glass .navbar-brand {
@@ -264,11 +277,11 @@ textarea:focus-visible,
 
 .hero {
   position: relative;
-  height: 60vh;
-  display: flex;
-  align-items: center;
+  min-height: 40vh;
+  display: grid;
+  padding-top: 130px;
+  place-items: center;
   overflow: hidden;
-  background: #f7dddd;
 }
 
 .hero-content {
@@ -340,34 +353,34 @@ textarea:focus-visible,
 .hero__blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(4px);
-  opacity: 0.55;
+  filter: blur(60px);
+  opacity: 0.65;
   z-index: 1;
   background: var(--color-white);
   animation: blob-float 14s ease-in-out infinite;
 }
 
 .hero__blob--a {
-  width: 340px;
-  height: 340px;
-  top: -80px;
-  left: -100px;
+  width: 380px;
+  height: 380px;
+  top: -100px;
+  left: -110px;
   animation-delay: 0s;
 }
 
 .hero__blob--b {
-  width: 260px;
-  height: 260px;
-  bottom: -60px;
-  right: -60px;
+  width: 300px;
+  height: 300px;
+  bottom: -80px;
+  right: -70px;
   background: var(--color-white);
   animation-delay: -5s;
 }
 
 .hero__blob--c {
-  width: 160px;
-  height: 160px;
-  top: 30%;
+  width: 220px;
+  height: 220px;
+  top: 25%;
   right: 12%;
   background: var(--color-white);
   animation-delay: -9s;
@@ -1161,6 +1174,19 @@ textarea:focus-visible,
 
 .order-success.is-visible {
   display: block;
+  animation: order-success-in 0.6s var(--ease) both;
+}
+
+@keyframes order-success-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .order-success__icon {
@@ -1201,16 +1227,23 @@ textarea:focus-visible,
   background: var(--color-surface);
   color: var(--color-accent-deep);
   border: 1.5px solid var(--color-accent);
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1050;
   box-shadow: var(--shadow-soft);
-  transition: transform var(--transition-base), opacity var(--transition-base), background var(--transition-base), color var(--transition-base);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(14px) scale(0.85);
+  pointer-events: none;
+  transition: transform var(--transition-base), opacity var(--transition-base), visibility var(--transition-base), background var(--transition-base), color var(--transition-base);
 }
 
 #backToTop.is-visible {
-  display: flex;
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
 }
 
 #backToTop:hover {
@@ -1246,6 +1279,32 @@ textarea:focus-visible,
   font-size: 1.2rem;
   box-shadow: var(--shadow-soft);
   transition: transform var(--transition-base), background-color var(--transition-base), color var(--transition-base);
+  opacity: 0;
+  animation: quick-contact-in 0.6s var(--ease) both;
+}
+
+.quick-actions .quick-contact-btn:nth-child(1) {
+  animation-delay: 1s;
+}
+
+.quick-actions .quick-contact-btn:nth-child(2) {
+  animation-delay: 1.12s;
+}
+
+.quick-actions .quick-contact-btn:nth-child(3) {
+  animation-delay: 1.24s;
+}
+
+@keyframes quick-contact-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.7);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .quick-contact-btn:hover,
@@ -1313,7 +1372,10 @@ footer.bg-pink-soft {
     animation: none !important;
   }
 
-  .hero-intro {
+  .hero-intro,
+  .navbar-glass,
+  .quick-contact-btn,
+  .order-success.is-visible {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
