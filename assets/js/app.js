@@ -189,12 +189,13 @@ function initMotion() {
   document.querySelectorAll(".reveal-stagger").forEach((group) => {
     const children = [...group.children];
     if (!children.length) return;
+    const stagger = group.dataset.stagger ? Number(group.dataset.stagger) : 0.05;
     gsap.from(children, {
       opacity: 0,
       y: 36,
       duration: 0.7,
       ease: "power3.out",
-      stagger: 0.05,
+      stagger,
       immediateRender: false,
       scrollTrigger: { trigger: group, start: "top 88%" }
     });
