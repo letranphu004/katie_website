@@ -4,6 +4,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-01J33T4EHV"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-01J33T4EHV');
+  </script>
+
   <title>tiệm tí be — sản phẩm custom</title>
   <meta name="description"
     content="sản phẩm custom khắc tên cá nhân hóa, thủ công tinh xảo. Món quà độc bản, đáng yêu cho người bạn thương. Giao hàng toàn quốc.">
@@ -59,25 +69,25 @@
       </div>
     </section>
 
-    <!-- <div class="marquee" aria-hidden="true">
-      <div class="marquee__track">
-        <span class="marquee__item"><i class="bi bi-stars"></i>Khắc Tên Cá Nhân Hóa</span>
-        <span class="marquee__item"><i class="bi bi-gift"></i>Quà Tặng Độc Bản</span>
-        <span class="marquee__item"><i class="bi bi-truck"></i>Giao Hàng Toàn Quốc</span>
-        <span class="marquee__item"><i class="bi bi-heart"></i>Thủ Công Tỉ Mỉ</span>
-        <span class="marquee__item"><i class="bi bi-stars"></i>Khắc Tên Cá Nhân Hóa</span>
-        <span class="marquee__item"><i class="bi bi-gift"></i>Quà Tặng Độc Bản</span>
-        <span class="marquee__item"><i class="bi bi-truck"></i>Giao Hàng Toàn Quốc</span>
-        <span class="marquee__item"><i class="bi bi-heart"></i>Thủ Công Tỉ Mỉ</span>
-      </div>
-    </div> -->
-
     <!-- Interactive Engraving Preview -->
     <section class="section-padding">
       <div class="container">
         <div class="text-center mb-5 reveal">
-          <p class="eyebrow justify-content-center">Trải Nghiệm Ngay</p>
-          <h2>xem trước font chữ custom</h2>
+          <div class="marquee" aria-hidden="true">
+            <div class="flip-ticker" id="flipTicker">
+              <span class="flip-ticker__item">made your way</span>
+              <span class="flip-ticker__item">build your own</span>
+              <span class="flip-ticker__item">choose your charms</span>
+              <span class="flip-ticker__item">choose your colors</span>
+              <span class="flip-ticker__item">one of one</span>
+              <span class="flip-ticker__item">handmade</span>
+              <span class="flip-ticker__item">made to order</span>
+              <span class="flip-ticker__item">everyday hair clips</span>
+              <span class="flip-ticker__item">no mass production</span>
+              <span class="flip-ticker__item">small details matter</span>
+            </div>
+          </div>
+          <!-- <p class="eyebrow justify-content-center">Trải Nghiệm Ngay</p> -->
         </div>
         <div class="bento reveal-stagger">
           <div class="bento__item bento__item--lg bento__item--accent bento__item--video">
@@ -90,7 +100,7 @@
               hàng, không nhầm lẫn!</p> -->
           </div>
           <div class="bento__item bento__item--lg bento__item--preview">
-            <p class="bento__preview-label">điền thử vào đây nèee</p>
+            <p class="bento__preview-label">trải nghiệm font chữ custom</p>
             <input type="text" class="bento__preview-input" id="heroEngravingInput" maxlength="12"
               placeholder="VD: kl87" aria-label="Nhập tên để xem trước">
             <div class="bento__preview-clip">
